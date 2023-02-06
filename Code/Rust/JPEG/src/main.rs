@@ -1,6 +1,7 @@
 mod colorspace_transforms;
 mod dct;
 mod downsampling;
+mod quantization;
 
 use colorspace_transforms::{rgb_to_ycbcr,ycbcr_to_rgb};
 

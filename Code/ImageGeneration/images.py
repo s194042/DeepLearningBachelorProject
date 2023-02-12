@@ -15,7 +15,7 @@ def load_nef(path):
     return np.rot90(img)
 
 
-def get_compressed_imgs(img, width, height):
+def get_compressed_imgs(img, width=512, height=768):
     original_width, original_height, _ = img.shape
     sizes = min(original_height//height, original_width//width)
     cut_img = img[:original_width//width*width, :original_height//height*height]
@@ -25,30 +25,28 @@ def get_compressed_imgs(img, width, height):
             yield cut_img[::size,::size]
 
 
+def get_split(img, width=512, height=768):
+    org_width, org_height, _ = img.shape
+    for i in range(org_width//width):
+        for j in range(org_height//height):
+            yield img[i*width:i*width+width, j*height:j*height+height]
 
-def get_all_splits(img, width, height):
-    for compressed_img in get_compressed_imgs(img, width, height):
-        compressed_width, compressed_height, _ = compressed_img.shape
-        splitImgs = sum([[compressed_img[i*width:i*width+width, j*height:j*height+height] for i in range(compressed_width//width)] for j in range(compressed_height//height)], start=[])
-        for img in splitImgs:
+
+def get_all_splits(img, width=512, height=768):
+    for compressed_img in get_compressed_imgs(img):
+        for img in get_split(compressed_img):
             yield img
         
 
 
 
-def get_all_images(path_to_images, width, height):
+def get_all_images(path_to_images, width=512, height=768):
     folders = [str(i) for i in range(5,17)]
     for f in folders:
         for _, _, pics in os.walk(path_to_images + '/' + f):
             for pic in pics:
                 npImg = load_nef(path_to_images + '/' + f +'/' + pic)
-                for img in get_all_splits(npImg, width, height):
+                for img in get_all_splits(npImg):
                     yield img
 
 
-images = get_all_images(path_to_images, 512, 768)
-
-for img in images:
-    plt.imshow(img)
-    plt.show()
-    input()

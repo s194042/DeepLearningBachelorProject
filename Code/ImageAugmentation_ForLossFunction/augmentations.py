@@ -18,57 +18,75 @@ def applyFilet(image,filter):
     image_c = np.rint(image_c)
     return image_c.astype("uint8")  
 
-def sharpen(image):
+def sharpen(image, times = 1):
     filter = np.array([ [0,-1,0],
                         [-1,5,-1],
                         [0,-1,0]])
-    return applyFilet(image, filter)
+    image_c = copy.deepcopy(image)
+    for _ in range(times):
+        image_c = applyFilet(image_c, filter)
+    return image_c
 
 
-def box_blur_3x3(image):
+def box_blur_3x3(image, times = 1):
     div = 9
     filter = np.array([ [1/div,1/div,1/div],
                         [1/div,1/div,1/div],
                         [1/div,1/div,1/div]])
-    return applyFilet(image, filter)
+    image_c = copy.deepcopy(image)
+    for _ in range(times):
+        image_c = applyFilet(image_c, filter)
+    return image_c
     
 
-def box_blur_5x5(image):
+def box_blur_5x5(image, times = 1):
     div = 25
     filter = np.array([ [1/div,1/div,1/div,1/div,1/div],
                         [1/div,1/div,1/div,1/div,1/div],
                         [1/div,1/div,1/div,1/div,1/div],
                         [1/div,1/div,1/div,1/div,1/div],
                         [1/div,1/div,1/div,1/div,1/div]])
-    return applyFilet(image, filter)
+    image_c = copy.deepcopy(image)
+    for _ in range(times):
+        image_c = applyFilet(image_c, filter)
+    return image_c
 
 
-def Gaussioan_blur_3x3(image):
+def Gaussioan_blur_3x3(image, times = 1):
     div = 16
     filter = np.array([ [1/div,2/div,1/div],
                         [2/div,4/div,2/div],
                         [1/div,2/div,1/div]])
-    return applyFilet(image, filter)
+    image_c = copy.deepcopy(image)
+    for _ in range(times):
+        image_c = applyFilet(image_c, filter)
+    return image_c
 
 
-def Gaussioan_blur_5x5(image):
+def Gaussioan_blur_5x5(image, times = 1):
     div = 256
     filter = np.array([ [1/div,4/div,6/div,4/div,1/div],
                         [4/div,16/div,24/div,16/div,4/div],
                         [6/div,24/div,36/div,24/div,6/div],
                         [4/div,16/div,24/div,16/div,4/div],
                         [1/div,4/div,6/div,4/div,1/div]])
-    return applyFilet(image, filter)
+    image_c = copy.deepcopy(image)
+    for _ in range(times):
+        image_c = applyFilet(image_c, filter)
+    return image_c
 
 
-def Unsharp_masking_5x5(image):
+def Unsharp_masking_5x5(image, times = 1):
     div = -256
     filter = np.array([ [1/div,4/div,6/div,4/div,1/div],
                         [4/div,16/div,24/div,16/div,4/div],
                         [6/div,24/div,-476/div,24/div,6/div],
                         [4/div,16/div,24/div,16/div,4/div],
                         [1/div,4/div,6/div,4/div,1/div]])
-    return applyFilet(image, filter)
+    image_c = copy.deepcopy(image)
+    for _ in range(times):
+        image_c = applyFilet(image_c, filter)
+    return image_c
 
 
 def salt(image, rate):
@@ -121,6 +139,18 @@ def Exp_noice(image, rate):
     image_c[image_c>255] = 255
     image_c = np.rint(image_c)
     return image_c.astype("uint8")   
+
+
+def Uniform_noice(image, max):
+    image_c = copy.deepcopy(image).astype('float64')
+    row,col,ch = image_c.shape
+    uniform = np.random.uniform(-max, max, image_c.shape)
+    uniform = uniform.reshape(row,col,ch)
+    image_c = image_c + uniform
+    image_c[image_c<0] = 0
+    image_c[image_c>255] = 255
+    image_c = np.rint(image_c)
+    return image_c.astype("uint8")
 
 
 def uniform_add(image, amount):

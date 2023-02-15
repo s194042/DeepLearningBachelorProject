@@ -50,3 +50,9 @@ def get_all_images(path_to_images, width=512, height=768):
                     yield img
 
 
+def get_all_flips_of_image(image):
+    yield image
+    yield np.fliplr(image)
+    image = np.flipud(image)
+    yield image
+    yield np.fliplr(image)

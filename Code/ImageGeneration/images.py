@@ -1,13 +1,11 @@
 import rawpy
-import matplotlib.pyplot as plt
 import os
 import numpy as np
-from PIL import Image
 
 
 path_to_images = 'C:/Users/Rani/Desktop/ai_training_immages' # foldernames are 1 ... 16
 
-def load_nef(path):
+def load_nef(path = 'C:/Users/Rani/Desktop/ai_training_immages' + "/16/_DSC0570.nef"):
     img = rawpy.imread(path).postprocess()
     width, height, _ = img.shape
     if width < height:

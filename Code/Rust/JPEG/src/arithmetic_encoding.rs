@@ -237,6 +237,20 @@ pub fn decode<T : Eq + Hash + Copy + Debug>(message : &Vec<u8>, model : &Model<T
 }
 
 
+
+pub fn calculate_entropy<T : Hash + Eq + Copy + Debug>(message : &Vec<T>, model : &Model<T>) -> f64{
+    let mut H = 0.0;
+
+    for symbol in model.ranges.keys(){
+        let (low,high,denom) = model.get_prob(symbol);
+        let p = (high - low) as f64 / denom as f64;
+        H -= p * p.log2();
+    }
+
+    return H * message.len() as f64;
+}
+
+
 #[cfg(test)]
 mod test{
     use super::*;

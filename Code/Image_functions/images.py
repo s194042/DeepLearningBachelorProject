@@ -9,8 +9,8 @@ def load_nef(path = 'C:/Users/Rani/Desktop/ai_training_immages' + "/16/_DSC0570.
     img = rawpy.imread(path).postprocess()
     width, height, _ = img.shape
     if width < height:
-        return img
-    return np.rot90(img)
+        return np.float32(img)
+    return np.float32(np.rot90(img))
 
 
 def get_compressed_imgs(img, width=512, height=768):

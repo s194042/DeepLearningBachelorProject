@@ -1,7 +1,9 @@
+import math
+import torch
 import images
 import augmentations
 import numpy as np
-
+import torchsummary
 
 ## loss of 0 is perfect, loss with 1 is really bad
 
@@ -92,19 +94,33 @@ def get_images_with_loss_of_1(img):
     yield augmentations.peper(img, 0.6)
 
 
+class MakeIter(object):
+    def __init__(self, generator_func, **kwargs):
+        self.generator_func = generator_func
+        self.kwargs = kwargs
+    def __iter__(self):
+        return self.generator_func(**self.kwargs)
+    def __getitem__(self, index):
+        return self.generator_func.__next__()
+    def __len__(self):
+        return 101984400
 
-def get_image_pairs_transforms_with_loss():
-    imgs = images.get_all_imgs_with_everything('C:/Users/Rani/Desktop/ai_training_immages')
+def get_image_pairs_transforms_with_loss(path='C:/Users/Rani/Desktop/ai_training_immages'):
+    imgs = images.get_all_imgs_with_everything(path)
     for img in imgs:
+
+
+        
         for aug_0 in get_images_with_loss_of_0(img):
-            yield img, aug_0, 0.0
-        for aug_0 in get_images_with_loss_of_0_2(img):
-            yield img, aug_0, 0.2
-        for aug_0 in get_images_with_loss_of_0_4(img):
-            yield img, aug_0, 0.4
-        for aug_0 in get_images_with_loss_of_0_6(img):
-            yield img, aug_0, 0.6
-        for aug_0 in get_images_with_loss_of_0_8(img):
-            yield img, aug_0, 0.8
+            yield torch.tensor(np.concatenate(((img - 128)/255, img-aug_0), axis=2), dtype=torch.float).permute(2,0,1).to("cuda"), torch.tensor(0.0).to("cuda")
         for aug_0 in get_images_with_loss_of_1(img):
-            yield img, aug_0, 1.0
+            yield torch.tensor(np.concatenate(((img - 128)/255, img-aug_0), axis=2), dtype=torch.float).permute(2,0,1).to("cuda"), torch.tensor(0.999).to("cuda")
+        for aug_0 in get_images_with_loss_of_0_2(img):
+            yield torch.tensor(np.concatenate(((img - 128)/255, img-aug_0), axis=2), dtype=torch.float).permute(2,0,1).to("cuda"), torch.tensor(0.2000).to("cuda")
+        for aug_0 in get_images_with_loss_of_0_6(img):
+            yield torch.tensor(np.concatenate(((img - 128)/255, img-aug_0), axis=2), dtype=torch.float).permute(2,0,1).to("cuda"), torch.tensor(0.6000).to("cuda")
+        for aug_0 in get_images_with_loss_of_0_4(img):
+            yield torch.tensor(np.concatenate(((img - 128)/255, img-aug_0), axis=2), dtype=torch.float).permute(2,0,1).to("cuda"), torch.tensor(0.4000).to("cuda")
+        for aug_0 in get_images_with_loss_of_0_8(img):
+            yield torch.tensor(np.concatenate(((img - 128)/255, img-aug_0), axis=2), dtype=torch.float).permute(2,0,1).to("cuda"), torch.tensor(0.8000).to("cuda")
+        

@@ -1,0 +1,32 @@
+\chapter{Implementation of neural networks}
+\section{Efficient deep neural networks}
+As mentioned, we are implementing both the loss function and the compressors, using neural networks. 
+
+Normally, it would be beneficial to try an array of different architectures in some sort of grid search, followed by tweaking and tinkering until one gets the hyper parameters optimized to a satisfying degree. Due to computational limitations, we can not afford to train a wide array of models on a lot of data. We could limit the amount of data to a subset of our data set, and then train and compare multiple models on this data set, but this would bias our hyper parameter tuning towards simpler models that do not require as much data for conversion. Instead we will try to carefully construct an architecture based on the most successfully architectures and adjust for the fact that most of these architectures require a better computational setup than we have access to. Lucily there have been advances in making computationally efficient neural networks\cite{MobileNets}\cite{Inception}\cite{InceptionV3}\cite{InceptionV4}. The hope is, that by using cutting edge ideas, we can achieve satisfactory results in only a few iterations of tweaking and tinkering. 
+
+\subsection{Expressive and efficient neural networks}
+We want our models to be able to fit the underlying model well, and to understand the data well. Deep models are able to fit highly non linear models, and learn a non-linear manifold of the data\cite{Ae}\cite{NetworkInNetwork}\cite{InceptionV3}. However, deep models also tend to have more parameters, which then sets higher requirements of the setup. We will cover all the tricks we are going to employ in order to deepen our networks, while still keeping the number of parameters under control. 
+
+\subsubsection{1x1 convolutions}
+1x1 convolutions are computationally relatively cheap, since they have a lot fewer weights than f.x. 3x3 convolutions. However, it is somewhat non intuitive to have 1x1 convolutions, since convolutions are usually used because of some expected spacial dependencies. However as shown in \cite{NetworkInNetwork}, 1x1 convolutions are mathematically equivalent to the universal function approximator multilayer perceptron. Having 1x1 convolutions can also increase the non-linearity, since the activation function can be applied after each 1x1 convolution. The inception networks also uses 1x1 convolutions\cite{Inception}\cite{InceptionV3}\cite{InceptionV4} both for the reasons mentioned in \cite{NetworkInNetwork}, but also to compress split data before expensive operations\cite{Inception}\cite{InceptionV3}\cite{InceptionV4}.
+
+\subsubsection{Depthwise Seperable Convolutions}
+One can furthermore reduce the number of variables, without affecting performance much, by using depthwise seperable convolutions\cite{MobileNets}\cite{xception}. These work by splitting a normal NxN convolutions into layervise convolutions followed by 1x1 convolutions. The amount of variables saved depends on the architecture, but in \cite{MobileNets} it by a factor of 7.
+
+\subsubsection{Smaller convolutions} % måske tegning :)
+In \cite{InceptionV3}, they argue that one does not need bigger convolutions e.g. 5x5 or 7x7 convolutions, since one 5x5 convolution can be replaced by two 3x3 convolutions, which in turn reduces the number of parameters by a factor of $\frac{5\cdot5}{3\cdot3}\approx2.78$. The reason why two 3x3 can replace 1 5x5, is because the information from one pixel can travel one pixel in any 
+direction, for each 3x3 convolution, and two pixels for each 5x5 convolution. One can probably even argue that the higher amount of non-linear activation functions, could increase the expressiveness of this approach. Furthermore, \cite{InceptionV3} argue that one can even replace any NxN convolution by the two convolutions 1xN and Nx1, reducing the amount of parameters by a factor of $\frac{N\cdot N}{1\cdot N + N\cdot 1} = \frac{N²}{2N}$. This still allows data to move as far as the NxN convolution, except for the first convolution\cite{InceptionV3}.
+
+\subsubsection{Bacthnormalization}
+In batch normalization, one can minimice the internal covatiate shift, by performing normalization of the minibatches\cite{Inceptionv2}. Faster learning of normalized data has been known for a long time and it turns out that batch normalization also quickens learning considerably\cite{Inceptionv2}. Furthermore, batchnormalization also stabilizes the learning, allowing for much more aggressive learning rate and less regularization, increasing convergence speed by a factor of 14 in \cite{Inceptionv2}. The main difficulty when using batchnormalization is that the batches need to scrambled well \cite{Inceptionv2}, which for our data generation approach could be a hindrance. Furthermore, we are afraid that the regularizing effect might cause problems when reconstructing images.
+
+\subsubsection{Residual connections}
+
+
+
+\section{Loss function}
+
+*Nets in nets 1x1 convs = multilayer perceptron (ANN
+*Mobilenet shallow convs + 1x1 convs
+*Inception Deeper is better
+

@@ -1,0 +1,63 @@
+\chapter{Arithmetic Encoding}
+\begin{itemize}
+    \item lossless compression
+    \item entropy encoding
+\end{itemize}
+
+Arithmetic is a form of entropy encoding. Which means it is a form of lossless compression, which attempts to compress messages near the limit presented by the Shannon source theorem. The Shannon source theorem expresses that the average compressed length of an message cannot be below the length of the uncompressed message times the entropy, $H(p)$ of the occurrence probability for each symbol. In order to properly understand Shannons source theorem, entropy encoding and lossless compression we must first introduce some notation. We will in the following use the binary alphabet $\Sigma_b = \{0,1\}$ as the compression alphabet.\\
+
+\begin{itemize}
+    \item let $O$ be the termination symbol.
+    \item Let $\Sigma : \{s_0,s_1, \dots s_n,O\}$ be the set of symbols in the uncompressed message. 
+    \item Let $\Sigma^* : \{x_0x_1 \dots x_n \mid  k\geq0   ,\forall x_i : x_i \in \Sigma \backslash \{O\} \}$ be the set of all finite strings from $\Sigma$
+    \item Let $p : \{p_0,p_1, \dots p_n,p_O\}$ be the set of probabilities of the occurrence for each symbol in $\Sigma$.
+    \item Let $p^*(X) : \Pi_{i=1}^k p_{x_i},\, X \in \Sigma^*,\, k = |X|$ be a probability mass function on $\Sigma^*$.
+\end{itemize}
+
+
+
+
+\section{The theoretical algorithm}
+
+Arithmetic coding works by assigning every possible sequence of symbols to its own interval between $[0,1[$ and then the compressed message is a binary fraction precise enough such that is wholly within the message interval. Longer messages result in smaller intervals and in turn result in more precision required to properly represent the binary fraction.
+
+\subsection{Finding the interval}
+The question now is how do we go from message to interval? This is done by supplying a model, that assigns each symbol from $\Sigma$ to an interval between $[0,1[$. There several ways of constructing this model, some more advanced than others, but in this case we are using the simplest method which is as follows
+\begin{equation}
+    s_i \text{ is assigned the interval } [0 +\sum_{j=1}^{i-1}p_j, \sum_{j=1}^i p_j [\,,\,i \in \{1,\dots,|\Sigma|\} \cup \{O\}
+\end{equation}
+This is best illustrated with an example. We define
+\begin{itemize}
+    \item $\Sigma : \{X,Y,Z\}$
+    \item $O : Z$
+    \item $p : \{\frac{1}{4},\frac{5}{8},\frac{1}{8}\}$
+    \item $\Sigma^*$ and $p^*$ are irrelevant to specify for this example.
+\end{itemize}
+
+To encode the message $XYYZ$ we divide the numberline as shown in figure 
+
+
+
+\begin{itemize}
+    \item Probability model
+    \item Alphabet on the numberline
+    \item infinite floating point precision
+    \item encoding procedure
+    \item decoding procedure
+\end{itemize}
+
+\section{Optimality considerations}
+\begin{itemize}
+    \item relation to huffman coding
+    \item entropy calculations
+    \item shannon source theorem
+\end{itemize}
+
+\section{The actual algorithm}
+\begin{itemize}
+    \item precision problems
+    \item rescaling
+    \item middle rescaling
+    \item encoder
+    \item decoder
+\end{itemize}

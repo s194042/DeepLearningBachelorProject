@@ -1,0 +1,72 @@
+\documentclass[]{article}
+\usepackage{authblk}
+\usepackage{biblatex}
+\addbibresource{bibliography.bib}
+
+\begin{document}
+
+\title{Lossy compression with Neural Networks}
+
+\author{Hans Henrik Hermansen \& Rani Ey. í Bø}
+\maketitle
+
+\section*{Motivation}
+
+Around 1.81 trillion images are taken each year and billions are shared on different apps each day \cite{imagestaken}. As such the relevance of data compression can not be overstated. Most images today are compressed with either PNG (lossless) or JPEG (lossy). JPEG is the most used \cite{jpegCommon} as it can achieve far greater compression rates with little to no noticeable effect. \\
+
+JPEG takes advantage of the way we as humans see images to cleverly discard data not important for our perception of an image. In this project we want to explore whether or not neural networks can learn to compress images to better match our Human Visual System (HVS). Many examples of image compression with neural networks already exists\cite{benchmark} and some of these already present results superior to the best hand-crafted codecs. We have however found a problem persistent the literature, which is the problem of defining a proper loss function.
+
+Since the object is to train a network to compress images in a way that align well with the HVS, the HVS in a sense becomes the loss function. The HVS is far from fully understood\cite{hvs} and as such it is very difficult to create a loss function to match. Therefore a major goal for this project is to attempt to create a loss function that is better aligned with the HVS than existing methods such as MSE\cite{msebad}, SSIM\cite{SSIM} and MS-SSIM\cite{MSSSIM}.
+\\
+
+As we want to be able to accurately compare our results with JPEG we will implement our own variable rate JPEG compressor. This is also helpful as many existing methods of neural compression use entropy encoding, much like JPEG, such as arithmetic encoding. 
+
+\section*{Milestones}
+We separate the milestones for this project into three phases. Goals we have to complete, ones we would like to complete and finally goals we hope but don't expect to complete. 
+
+\subsection*{Must be completed}
+These are the goals necessary for completing and benchmarking a basic End-to-End neural network compression pipeline. 
+
+\begin{itemize}
+    \item Implement a variable rate JPEG compressor for benchmarking
+    \item Implement a arithmetic encoder for entropy encoding
+    \item Apply image transformations on the dataset to increase the size of the dataset
+    \item Train a basic Auto Encoder compression network
+    \item Assemble the Auto Encoder and arithmetic encoder into a full compression pipeline.
+\end{itemize}
+
+\subsection*{Want to complete}
+These are the major milestones for the project. 
+
+\begin{itemize}
+    \item Design and implement image transforms that are noticeable by humans to a varying degree for the purpose of training a loss function.
+    \item Create a loss function that aligns well to the HVS.
+    \item Achieve better compression performance than JPEG
+\end{itemize}
+
+\subsection*{Hope to complete}
+This is a goal we don't expect to complete or even begin attempting, but if everything else gets done fast, we can attempt this.
+\begin{itemize}
+    \item Extend the compression pipeline to video compression
+\end{itemize}
+
+\section*{Data}
+Because we are working with lossy compression, we want our images to be in their original condition. This makes us unable to use any image databases with lossy formats like JPEG. A widely used dataset wihtin neural compression and neural image processing tasks is the Kodak data set, containing 24 512x768 PNG images \cite{Kodak}\cite{benchmark}. 24 images is rather small for training deep neural networks, therefore we are using  Kodak as a validation set to facilitate comparison between our results and the literature. For training, we are going to use a personal dataset of ours, with about 10.000 3280x4948 NEF images.
+
+\printbibliography
+
+%\section*{Project description}
+%In our social media driven world billions of images are shared and stored each day. To facilitate this most images shared on the internet these days have been compressed, most commonly with the JPEG compression algorithm. There have been great advancements in the field of deep learning, these advancements have also affected compression, leading to neural network based approaches outperforming the best human created codecs. The field is rather new and is still far from solved, making us excited for the possibility of researching the cutting edge. The purpose of this project is therefore to explore the current state of deep learning compression methods and the strength and weaknesses of these and trying to contribute with our own ides by making our own neural lossy image compressor. We focus mostly on lossy compression, as lossy compression can lead to higher compression rates and because it gives us the opportunity to tackle the challenge of getting our neural network to align well with human visual system. We are implementing our own JPEG compressor in order to properly benchmark our deep learning solution. This includes an arithmetic encoder, which is helpful as this is also needed for many deep learning compression architectures.%Even then there already exists examples of deep learning methods superior to handcrafted codecs. 
+
+%\section*{Project components}
+
+%\begin{itemize}
+%    \item Designing and implementing a neural network for image compression
+%    \item Developement of a new loss function for compression (full reference image quality metric)
+%    \item Implementation of JPEG for benchmarking  in Rust
+%    \item Implementation of an arithmetic encoder in Rust
+%    \item Making use of the built-in unit-test capabilities of Rust.
+%    \item Image transforms to increase size of dataset
+%\end{itemize}
+
+\end{document}

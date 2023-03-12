@@ -13,6 +13,14 @@ pub fn quantization_block(block : &mut Vec<Vec<f64>>, row : usize, column : usiz
 
 }
 
+pub fn inverse_quantization_block(block : &mut Vec<Vec<f64>>, row : usize, column : usize, q_matrix : &Vec<Vec<isize>>) {
+    for i in 0..8{
+        for j in 0..8{
+            block[row + i][column + j] = block[row + i][column + j] * (q_matrix[i][j] as f64);
+        }
+    }
+}
+
 
 pub fn gen_quantize_lumi_matrix(Qf : f64) -> Vec<Vec<isize>>{
     let mut q_lumi = vec![vec![16, 11, 10, 16, 24, 40, 51, 61],

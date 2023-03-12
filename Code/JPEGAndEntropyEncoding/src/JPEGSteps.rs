@@ -96,7 +96,57 @@ fn dct_and_quantization_over_channel(channel : &mut Vec<Vec<f64>>, Qf : f64, chr
     }
 }
 
+pub fn inverse_quantize_and_dct_image(mut image : JPEGContainer, Qf : f64) -> JPEGContainer{
 
+
+    let mut senders = vec![];
+    let mut receivers = vec![];
+
+    for i in 0..6{
+        let (tx,rx) = mpsc::channel();
+        senders.push(tx);
+        receivers.push(rx);
+    }
+
+    senders[0].send(image.y_channel).unwrap();
+    senders[1].send(image.cb_channel).unwrap();
+    senders[2].send(image.cr_channel).unwrap();
+
+    let mut threads = vec![];
+
+    for channel in 0..3{
+        let receiver = receivers.remove(0);
+        let sender = senders.remove(3);
+        threads.push(
+            thread::spawn(move ||{
+                let mut image_channel = receiver.recv().unwrap();
+                inverse_quantization_and_dct_over_channel(&mut image_channel, Qf, channel > 0);
+                sender.send(image_channel).unwrap();
+            })
+        )
+    }
+
+    image.y_channel = receivers[0].recv().unwrap();
+    image.cb_channel = receivers[1].recv().unwrap();
+    image.cr_channel = receivers[2].recv().unwrap();
+    return image;
+}
+
+fn inverse_quantization_and_dct_over_channel(mut channel : &mut Vec<Vec<f64>>, Qf : f64, chroma : bool){
+    let quantization_matrix = if chroma {quantization::gen_quantize_chroma_matrix(Qf)} else {quantization::gen_quantize_lumi_matrix(Qf)};
+
+    for i in 0..channel.len() / 8{
+        for j in 0..channel[0].len() / 8{
+            let inverse_dct_block_coefficients = dct::inv_dct_block(&channel,i*8, j*8);
+            for block_i in 0..8{
+                for block_j in 0..8{
+                    channel[i*8+block_i][j*8+block_j] = inverse_dct_block_coefficients[block_i][block_j];
+                }
+            }
+            quantization::inverse_quantization_block(channel, i*8, j*8, &quantization_matrix);
+        }
+    }
+}
 
 
 

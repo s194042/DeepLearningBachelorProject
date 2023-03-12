@@ -38,7 +38,7 @@ fn inv_dct_coeff(block : &Vec<Vec<f64>>, x : usize, y : usize, row : usize, colu
     return res;
 }
 
-fn inv_dct_block(block : &Vec<Vec<f64>>, row : usize, column : usize) -> Vec<Vec<f64>>{
+pub fn inv_dct_block(block : &Vec<Vec<f64>>, row : usize, column : usize) -> Vec<Vec<f64>>{
     let mut res = vec![vec![0.0;8];8];
     for i in 0..8{
         for j in 0..8{

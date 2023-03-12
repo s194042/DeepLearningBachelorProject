@@ -49,7 +49,8 @@ fn list_test(mut image : Vec<Vec<Vec<f64>>>) -> Py<PyAny>{
 
     let mut downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, Sampling::Down444);
     let mut dct_image = JPEGSteps::dct_and_quantize_image(downsampled_image, 50.0);
-    return Python::with_gil(|py| dct_image.to_object(py));
+    let mut inverse_dct_image = JPEGSteps::inverse_quantize_and_dct_image(dct_image, 50.0);
+    return Python::with_gil(|py| inverse_dct_image.to_object(py));
 }
 
 

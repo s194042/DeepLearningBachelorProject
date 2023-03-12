@@ -1,12 +1,10 @@
-use downsampling::down420;
 use pyo3::prelude::*;
 mod colorspace_transforms;
 mod dct;
-mod downsampling;
 mod quantization;
 mod arithmetic_encoding;
 mod JPEGSteps;
-
+mod entropy_encoding_step;
 
 pub struct JPEGContainer{
     y_channel : Vec<Vec<f64>>,
@@ -49,9 +47,9 @@ fn JPEGAndEntropyEncoding(_py: Python, m: &PyModule) -> PyResult<()> {
 #[pyfunction]
 fn list_test(mut image : Vec<Vec<Vec<f64>>>) -> Py<PyAny>{
 
-    let downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, Sampling::Down444);
-
-    return Python::with_gil(|py| downsampled_image.to_object(py));
+    let mut downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, Sampling::Down444);
+    let mut dct_image = JPEGSteps::dct_and_quantize_image(downsampled_image, 50.0);
+    return Python::with_gil(|py| dct_image.to_object(py));
 }
 
 

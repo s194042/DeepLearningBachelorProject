@@ -5,10 +5,10 @@ fn alpha(i : f64) -> f64{
 }
 
 
-fn dct_coeff(block : &Vec<Vec<f64>>, u : f64, v : f64) -> f64{
+fn dct_coeff(block : &Vec<Vec<f64>>, u : f64, v : f64, row : usize, column : usize) -> f64{
     let mut res = 0.0;
-    for i in 0..8{
-        for j in 0..8{
+    for i in row..row+8{
+        for j in column..column+8{
             res += (block[i][j]) * ((2*i + 1) as f64 * u * std::f64::consts::PI / 16.0 ).cos() * ((2*j + 1) as f64 * v * std::f64::consts::PI / 16.0 ).cos();
         }
     }
@@ -16,21 +16,21 @@ fn dct_coeff(block : &Vec<Vec<f64>>, u : f64, v : f64) -> f64{
     return 1.0 / 4.0 * alpha(u) * alpha(v) * res;
 }
 
-pub fn dct_block(block : &Vec<Vec<f64>>) -> Vec<Vec<f64>>{
+pub fn dct_block(block : &Vec<Vec<f64>>, row : usize, column : usize) -> Vec<Vec<f64>>{
     let mut res = vec![vec![0.0;8];8];
     for i in 0..8{
         for j in 0..8{
-            res[i][j] = dct_coeff(block, i as f64, j as f64);
+            res[i][j] = dct_coeff(block, i as f64, j as f64, row,column);
         }
     }
 
     return res;
 }
 
-fn inv_dct_coeff(block : &Vec<Vec<f64>>, x : usize, y : usize) -> f64{
+fn inv_dct_coeff(block : &Vec<Vec<f64>>, x : usize, y : usize, row : usize, column : usize) -> f64{
     let mut res = 0.0;
-    for i in 0..8{
-        for j in 0..8{
+    for i in row..row+8{
+        for j in column..column+8{
             res += 1.0 / 4.0 * alpha(i as f64) * alpha(j as f64) * (block[i][j]) * ((2*x + 1) as f64 * (i as f64) * std::f64::consts::PI / 16.0 ).cos() * ((2*y + 1) as f64 * (j as f64) * std::f64::consts::PI / 16.0 ).cos();
         }
     }
@@ -38,11 +38,11 @@ fn inv_dct_coeff(block : &Vec<Vec<f64>>, x : usize, y : usize) -> f64{
     return res;
 }
 
-fn inv_dct_block(block : &Vec<Vec<f64>>) -> Vec<Vec<f64>>{
+fn inv_dct_block(block : &Vec<Vec<f64>>, row : usize, column : usize) -> Vec<Vec<f64>>{
     let mut res = vec![vec![0.0;8];8];
     for i in 0..8{
         for j in 0..8{
-            res[i][j] = inv_dct_coeff(block, i, j);
+            res[i][j] = inv_dct_coeff(block, i, j, row, column);
         }
     }
 
@@ -69,7 +69,7 @@ mod tests{
                      vec![-41.0, -49.0, -59.0, -60.0, -63.0, -52.0, -50.0, -34.0]];
 
 
-        assert_eq!(dct_coeff(&t,0.0,0.0).round() as isize, -415);
+        assert_eq!(dct_coeff(&t,0.0,0.0,0,0).round() as isize, -415);
     }
 
     #[test]
@@ -84,7 +84,7 @@ mod tests{
                      vec![-43.0, -57.0, -64.0, -69.0, -73.0, -67.0, -63.0, -45.0],
                      vec![-41.0, -49.0, -59.0, -60.0, -63.0, -52.0, -50.0, -34.0]];
 
-        let after = dct_block(&t);
+        let after = dct_block(&t,0,0);
         for i in 0..8{
             println!("{:?}",after[i]);  
         }
@@ -103,7 +103,7 @@ mod tests{
                      vec![-43.0, -57.0, -64.0, -69.0, -73.0, -67.0, -63.0, -45.0],
                      vec![-41.0, -49.0, -59.0, -60.0, -63.0, -52.0, -50.0, -34.0]];
 
-        assert_eq!(t[0][0] as isize, inv_dct_coeff(&dct_block(&t),0,0).round() as isize);
+        assert_eq!(t[0][0] as isize, inv_dct_coeff(&dct_block(&t,0,0),0,0,0,0).round() as isize);
     }
 
 
@@ -118,7 +118,7 @@ mod tests{
                      vec![-43.0, -57.0, -64.0, -69.0, -73.0, -67.0, -63.0, -45.0],
                      vec![-41.0, -49.0, -59.0, -60.0, -63.0, -52.0, -50.0, -34.0]];
 
-        let after = inv_dct_block(&dct_block(&t));
+        let after = inv_dct_block(&dct_block(&t,0,0),0,0);
         for i in 0..8{
             for j in 0..8{
                 assert_eq!(t[i][j] as isize, after[i][j].round() as isize);

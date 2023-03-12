@@ -7,9 +7,9 @@ fn alpha(i : f64) -> f64{
 
 fn dct_coeff(block : &Vec<Vec<f64>>, u : f64, v : f64, row : usize, column : usize) -> f64{
     let mut res = 0.0;
-    for i in row..row+8{
-        for j in column..column+8{
-            res += (block[i][j]) * ((2*i + 1) as f64 * u * std::f64::consts::PI / 16.0 ).cos() * ((2*j + 1) as f64 * v * std::f64::consts::PI / 16.0 ).cos();
+    for i in 0..8{
+        for j in 0..8{
+            res += (block[row + i][column + j]) * ((2*i + 1) as f64 * u * std::f64::consts::PI / 16.0 ).cos() * ((2*j + 1) as f64 * v * std::f64::consts::PI / 16.0 ).cos();
         }
     }
 
@@ -29,9 +29,9 @@ pub fn dct_block(block : &Vec<Vec<f64>>, row : usize, column : usize) -> Vec<Vec
 
 fn inv_dct_coeff(block : &Vec<Vec<f64>>, x : usize, y : usize, row : usize, column : usize) -> f64{
     let mut res = 0.0;
-    for i in row..row+8{
-        for j in column..column+8{
-            res += 1.0 / 4.0 * alpha(i as f64) * alpha(j as f64) * (block[i][j]) * ((2*x + 1) as f64 * (i as f64) * std::f64::consts::PI / 16.0 ).cos() * ((2*y + 1) as f64 * (j as f64) * std::f64::consts::PI / 16.0 ).cos();
+    for i in 0..8{
+        for j in 0..8{
+            res += 1.0 / 4.0 * alpha(i as f64) * alpha(j as f64) * (block[row + i][column + j]) * ((2*x + 1) as f64 * (i as f64) * std::f64::consts::PI / 16.0 ).cos() * ((2*y + 1) as f64 * (j as f64) * std::f64::consts::PI / 16.0 ).cos();
         }
     }
 

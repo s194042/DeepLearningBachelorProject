@@ -30,41 +30,21 @@ pub enum Sampling {
 }
 
 
-/// Formats the sum of two numbers as string.
-#[pyfunction]
-fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
-}
-
 /// A Python module implemented in Rust.
 #[pymodule]
 fn JPEGAndEntropyEncoding(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
-    m.add_function(wrap_pyfunction!(list_test,m)?)?;
+    m.add_function(wrap_pyfunction!(JPEGcompress_and_decompress,m)?)?;
     Ok(())
 }
 
 #[pyfunction]
-fn list_test(mut image : Vec<Vec<Vec<f64>>>) -> Py<PyAny>{
+fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64) -> Py<PyAny>{
 
     let mut downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, Sampling::Down444);
-    let mut dct_image = JPEGSteps::dct_and_quantize_image(downsampled_image, 50.0);
-    let mut inverse_dct_image = JPEGSteps::inverse_quantize_and_dct_image(dct_image, 50.0);
-    return Python::with_gil(|py| inverse_dct_image.to_object(py));
+    let mut dct_image = JPEGSteps::dct_and_quantize_image(downsampled_image, Qf);
+    let mut inverse_dct_image = JPEGSteps::inverse_quantize_and_dct_image(dct_image, Qf);
+    let mut original_image = JPEGSteps::upsample_and_inverse_color_transform_image(inverse_dct_image);
+    return Python::with_gil(|py| original_image.to_object(py));
 }
 
 
-
-
-
-
-#[cfg(test)]
-
-mod test{
-
-    
-    #[test]
-    fn test1(){
-        assert!(1==1);
-    }
-}

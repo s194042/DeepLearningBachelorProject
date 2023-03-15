@@ -20,7 +20,7 @@ def get_compressed_imgs(img, width=512, height=768):
     cut_width, cut_height, _ = cut_img.shape
     for size in range(1,sizes+1):
         if cut_width//size % width == 0 and cut_height//size % height == 0:
-            yield cut_img[::size,::size]
+            yield np.array(cut_img[::size,::size],dtype=np.uint8)
 
 
 def get_split(img, width=512, height=768):

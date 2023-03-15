@@ -17,32 +17,34 @@ def get_images_with_loss_of_0(img):
     yield augmentations.uniform_add(img, -4)
     yield augmentations.uniform_decimal_multiplication(img, 0.95)
     yield augmentations.uniform_decimal_multiplication(img, 1.05)
+    yield augmentations.Unsharp_masking_5x5(img, 1)
 
 def get_images_with_loss_of_0_2(img):
     yield augmentations.Guasian_noice(img, 0.05)
     yield augmentations.Uniform_noice(img, 6)
     yield augmentations.Exp_noice(img, 0.035)
-    yield augmentations.Poiss_noice(img, 0.1)
+    yield augmentations.Poiss_noice(img, 0.15)
     yield augmentations.uniform_add(img, 15)
     yield augmentations.uniform_add(img, -15)
-    yield augmentations.uniform_decimal_multiplication(img, 0.85)
-    yield augmentations.uniform_decimal_multiplication(img, 1.15)
-    yield augmentations.Unsharp_masking_5x5(img, 1)
+    yield augmentations.uniform_decimal_multiplication(img, 0.88)
+    yield augmentations.uniform_decimal_multiplication(img, 1.12)
+    yield augmentations.sharpen(img, 1)
+    yield augmentations.box_blur_3x3(img, 1)
+    yield augmentations.Gaussioan_blur_3x3(img, 1)
 
 def get_images_with_loss_of_0_4(img):
     yield augmentations.Guasian_noice(img, 0.15)
     yield augmentations.Uniform_noice(img, 20)
     yield augmentations.Exp_noice(img, 0.1)
     yield augmentations.Poiss_noice(img, 0.4)
-    yield augmentations.uniform_add(img, 60)
-    yield augmentations.uniform_add(img, -60)
+    yield augmentations.uniform_add(img, 50)
+    yield augmentations.uniform_add(img, -50)
     yield augmentations.uniform_decimal_multiplication(img, 0.6)
     yield augmentations.uniform_decimal_multiplication(img, 1.4)
-    yield augmentations.sharpen(img, 1)
-    yield augmentations.box_blur_3x3(img, 1)
-    yield augmentations.Gaussioan_blur_3x3(img, 1)
     yield augmentations.salt(img, 0.01)
     yield augmentations.peper(img, 0.01)
+    yield augmentations.box_blur_5x5(img, 1)
+    yield augmentations.Gaussioan_blur_5x5(img, 1)
 
 
 def get_images_with_loss_of_0_6(img):
@@ -56,8 +58,6 @@ def get_images_with_loss_of_0_6(img):
     yield augmentations.uniform_decimal_multiplication(img, 1.6)
     yield augmentations.sharpen(img, 2)
     yield augmentations.Unsharp_masking_5x5(img, 4)
-    yield augmentations.box_blur_5x5(img, 1)
-    yield augmentations.Gaussioan_blur_5x5(img, 1)
     yield augmentations.salt(img, 0.05)
     yield augmentations.peper(img, 0.05)
 

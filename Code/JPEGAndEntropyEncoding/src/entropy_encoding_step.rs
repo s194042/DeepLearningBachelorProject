@@ -1,21 +1,31 @@
-/*
+
+#[derive(Debug,PartialEq,Eq,Hash,Clone,Copy)]
 pub enum JPEGSymbol {
-    Count(
+    Zeros(u8),
+    Symbol(isize),
+    EOB,
 }
 
 // todo! fix DC components
-pub fn run_length_encoding_block(block : Vec<Vec<f64>>, column : usize, row : usize){
-    let zigzag_sequence = generate_zigzag_sequence(8);
+pub fn run_length_encoding_block(block : &Vec<Vec<f64>>, row : usize, column : usize, zigzag_sequence : &Vec<(usize,usize)>) -> Vec<JPEGSymbol>{
     let mut result = vec![];
 
-
-
-
-
+    let mut counter = 0;
+    for (i,j) in zigzag_sequence.iter(){
+        if block[row + i][column + j] != 0.0{
+            result.push(JPEGSymbol::Zeros(counter));
+            result.push(JPEGSymbol::Symbol(block[row + i][column + j] as isize));
+            counter = 0;
+        }else{
+            counter += 1;
+        }
+    }
+    result.push(JPEGSymbol::EOB);
+    result
 }
-*/
 
-fn generate_zigzag_sequence(size : usize) -> Vec<(usize,usize)>{
+
+pub fn generate_zigzag_sequence(size : usize) -> Vec<(usize,usize)>{
     let mut zigzag_sequence = vec![];
     let (mut column, mut row) = (0,0);
     for i in 0..8{
@@ -84,4 +94,21 @@ mod test{
         }
         assert_eq!(test,target);
     }
+
+    #[test]
+    #[ignore]
+    fn test_run_length_encoding(){
+        let test = vec![vec![-26.0, -3.0, -6.0, 2.0, 2.0, -1.0, 0.0, 0.0], 
+                          vec![0.0, -2.0, -4.0, 1.0, 1.0, 0.0, 0.0, 0.0], 
+                          vec![-3.0, 1.0, 5.0, -1.0, -1.0, 0.0, 0.0, 0.0], 
+                          vec![-3.0, 1.0, 2.0, -1.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]];
+
+        println!("{:?}",run_length_encoding_block(&test, 0, 0, &generate_zigzag_sequence(8)));
+        assert!(false);
+    }
+
 }

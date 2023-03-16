@@ -386,8 +386,10 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
 
         self.fc_1 = nn.Linear(4608, 1024)
         self.fc_2 = nn.Linear(1024, 256)
-        self.fc_3 = nn.Linear(256, 6)
-        self.fc_4 = nn.Linear(6, 1)
+        self.fc_3 = nn.Linear(256, 4)
+        self.fc_3_5 = nn.Linear(256, 8)
+        self.fc_4 = nn.Linear(12, 6)
+        self.fc_5 = nn.Linear(6, 1)
 
         #self.initialize_weights()
         
@@ -413,11 +415,11 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
         x = self._10_4(x) + org
         x = self._11(x)
         x = self._12(x)
-        x = self._13(x)
+        x = self._13(x) + x
         x = self._14(x)
         x = self._15(x)
         x = self._16(x)
-        x = self._17(x)
+        x = self._17(x) + x
         x = self._18(x)
         x = self._19(x)
         x = self._20(x)
@@ -426,9 +428,12 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
         x = x.reshape(x.shape[0], -1)
         #x = self.dropout(x)
         x = self.activation(self.fc_1(x))
-        x = self.activation(self.fc_2(x))
-        x = self.activation(self.fc_3(x))
+        x = self.fc_2(x)
+        x_1 = self.activation(self.fc_3(self.activation(x)))
+        x_2 = self.sigmoid(self.fc_3_5(self.sigmoid(x)))
+        x = torch.concat((x_1, x_2), dim=-1)
         x = self.fc_4(x)
+        x = self.fc_5(x)
         return self.sigmoid(x)
     
     def initialize_weights(self):

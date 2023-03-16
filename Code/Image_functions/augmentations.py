@@ -101,81 +101,127 @@ def Unsharp_masking_5x5(image, times = 1, cupy=False):
 
 def salt(image, rate, cupy=False):
     if cupy:
+        image_c = cp.array(image)
+        row,col,ch = cp.shape(image_c)
+        rnd = cp.random.rand(row,col,ch)
+        image_c[rnd<rate] = 255
+        image_c = cp.asnumpy(image_c)
 
-        image_c = cp.array(copy.deepcopy(image))
+    else:
+        image_c = copy.deepcopy(image)
         row,col,ch = cp.shape(image_c)
         rnd = np.random.rand(row,col,ch)
-    image_c[rnd<rate] = 255
+        image_c[rnd<rate] = 255
     return image_c
 
 
 def peper(image, rate, cupy=False):
-    image_c = copy.deepcopy(image)
-    row,col,ch = image_c.shape
-    rnd = np.random.rand(row,col,ch)
-    image_c[rnd<rate] = 0
+    if cupy:
+        image_c = cp.array(image)
+        row,col,ch = cp.shape(image_c)
+        rnd = cp.random.rand(row,col,ch)
+        image_c[rnd<rate] = 0
+        image_c = cp.asnumpy(image_c)
+
+    else:
+        image_c = copy.deepcopy(image)
+        row,col,ch = cp.shape(image_c)
+        rnd = np.random.rand(row,col,ch)
+        image_c[rnd<rate] = 0
     return image_c
 
 
 def Guasian_noice(image, rate, cupy=False):
-    image_c = copy.deepcopy(image).astype('float64')
-    row,col,ch = image_c.shape
-    gauss = np.random.normal(0, rate*100, image_c.shape)
-    gauss = gauss.reshape(row,col,ch)
-    image_c = image_c + gauss
-    image_c[image_c<0] = 0
-    image_c[image_c>255] = 255
-    image_c = np.rint(image_c)
+    if cupy:
+        image_c = cp.asfarray(image)
+        gauss = cp.random.normal(0, rate*100, cp.shape(image_c))
+        image_c = cp.add(image_c, gauss)
+        cp.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = cp.rint(image_c)
+        image_c = cp.asnumpy(image_c)
+    else:
+        image_c = copy.deepcopy(image).astype('float64')
+        gauss = np.random.normal(0, rate*100, image_c.shape)
+        image_c = image_c + gauss
+        np.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = np.rint(image_c)
     return image_c.astype("uint8")
 
 
 def Poiss_noice(image, rate, cupy=False):
-    image_c = copy.deepcopy(image).astype('float64')
-    row,col,ch = image_c.shape
-    poisson = np.random.poisson(rate*100, image_c.shape)
-    poisson = poisson.reshape(row,col,ch)
-    image_c = image_c + poisson
-    image_c[image_c<0] = 0
-    image_c[image_c>255] = 255
-    image_c = np.rint(image_c)
+    if cupy:
+        image_c = cp.asfarray(image)
+        poisson = cp.random.poisson(rate*100, cp.shape(image_c))
+        image_c = cp.add(image_c, poisson)
+        cp.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = cp.rint(image_c)
+        image_c = cp.asnumpy(image_c)
+    else:
+        image_c = copy.deepcopy(image).astype('float64')
+        poisson = np.random.poisson(rate*100, image_c.shape)
+        image_c = image_c + poisson
+        np.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = np.rint(image_c)
     return image_c.astype("uint8")   
 
 
 def Exp_noice(image, rate, cupy=False):
-    image_c = copy.deepcopy(image).astype('float64')
-    row,col,ch = image_c.shape
-    exponential = np.random.exponential(rate*100, image_c.shape)
-    exponential = exponential.reshape(row,col,ch)
-    image_c = image_c + exponential
-    image_c[image_c<0] = 0
-    image_c[image_c>255] = 255
-    image_c = np.rint(image_c)
+    if cupy:
+        image_c = cp.asfarray(image)
+        exponential = cp.random.exponential(rate*100, cp.shape(image_c))
+        image_c = cp.add(image_c, exponential)
+        cp.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = cp.rint(image_c)
+        image_c = cp.asnumpy(image_c)
+    else:
+        image_c = copy.deepcopy(image).astype('float64')
+        exponential = np.random.exponential(rate*100, image_c.shape)
+        image_c = image_c + exponential
+        np.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = np.rint(image_c)
     return image_c.astype("uint8")   
 
 
 def Uniform_noice(image, max, cupy=False):
-    image_c = copy.deepcopy(image).astype('float64')
-    row,col,ch = image_c.shape
-    uniform = np.random.uniform(-max, max, image_c.shape)
-    uniform = uniform.reshape(row,col,ch)
-    image_c = image_c + uniform
-    image_c[image_c<0] = 0
-    image_c[image_c>255] = 255
-    image_c = np.rint(image_c)
+    if cupy:
+        image_c = cp.asfarray(image)
+        uniform = cp.random.uniform(-max, max, cp.shape(image_c))
+        image_c = cp.add(image_c, uniform)
+        cp.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = cp.rint(image_c)
+        image_c = cp.asnumpy(image_c)
+    else:
+        image_c = copy.deepcopy(image).astype('float64')
+        uniform = np.random.uniform(-max, max, image_c.shape)
+        image_c = image_c + uniform
+        np.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = np.rint(image_c)
     return image_c.astype("uint8")
 
 
 def uniform_add(image, amount, cupy=False):
-    image_c = copy.deepcopy(image).astype('int32')
-    image_c = image_c + amount
-    image_c[image_c<0] = 0
-    image_c[image_c>255] = 255
+    cupy = False # the overhead of cupy makes this simple one slower than no cupy
+    if cupy:
+        image_c = cp.asfarray(image)
+        image_c = cp.add(image_c, amount)
+        cp.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = cp.asnumpy(image_c)
+    else:
+        image_c = copy.deepcopy(image).astype('int32')
+        image_c = image_c + amount
+        np.clip(image_c, a_min=0, a_max=255, out=image_c)
+    
     return image_c.astype("uint8")  
 
 def uniform_decimal_multiplication(image, amount, cupy=False):
-    image_c = copy.deepcopy(image).astype('float64')
-    image_c = image_c * amount
-    image_c[image_c<0] = 0
-    image_c[image_c>255] = 255
-    image_c = np.rint(image_c)
+    cupy = False # the overhead of cupy makes this simple one slower than no cupy
+    if cupy:
+        image_c = cp.asfarray(image)
+        image_c = cp.multiply(image_c, amount)
+        cp.clip(image_c, a_min=0, a_max=255, out=image_c)
+        image_c = cp.asnumpy(image_c)
+    else:
+        image_c = copy.deepcopy(image).astype('int32')
+        image_c = image_c * amount
+        np.clip(image_c, a_min=0, a_max=255, out=image_c)
     return image_c.astype("uint8")   

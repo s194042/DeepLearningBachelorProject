@@ -4,6 +4,7 @@ pub enum JPEGSymbol {
     Zeros(u8),
     Symbol(isize),
     EOB,
+    CHANNEL_MARKER,
 }
 
 // todo! fix DC components

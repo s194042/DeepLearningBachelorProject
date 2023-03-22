@@ -102,12 +102,13 @@ class MakeIter(object):
     def __getitem__(self, index):
         return self.generator_func.__next__()
     def __len__(self):
-        return 101984400
+        return 6645*50*4*71-1 #-1 just to be safe
 
 
 
 
 def get_image_pairs_transforms_with_loss(path='C:/Users/Rani/Desktop/ai_training_immages', cupy=False, start = 0):
+    
     imgs = images.get_all_imgs_with_everything(path, start)
     for img in imgs:
         for aug_0 in get_images_with_loss_of_0(img, cupy):

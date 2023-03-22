@@ -55,6 +55,15 @@ impl<T : Eq + Hash + Copy + Debug> ArithEncoder<T> {
         self.encoded_message = self.message_from_bytes(&buffer);
     }
 
+    pub fn model_to_freq_vec(&self) -> Vec<(T,u64)>{
+        let mut result = vec![];
+        for key in self.model.ranges.keys(){
+            let (lower,upper,freq) = self.model.get_prob(key);
+            result.push((*key,upper - lower));
+        }
+        return result;
+    }
+
 
     pub fn message_to_bytes(&mut self) -> Vec<u8>{
         let l = (self.encoded_message.len() as f64 / 8.0).ceil() as usize * 8;

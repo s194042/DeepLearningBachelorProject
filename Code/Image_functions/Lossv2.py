@@ -542,8 +542,8 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
 
         self.fc_1 = nn.Linear(2048, 256)
         self.fc_2 = nn.Linear(256, 64)
-        self.fc_3 = nn.Linear(64, 24)
-        self.fc_3_5 = nn.Linear(64, 8)
+        self.fc_3 = nn.Linear(64, 16)
+        self.fc_3_5 = nn.Linear(64, 16)
         self.fc_4 = nn.Linear(32, 1)
 
         #self.initialize_weights()
@@ -581,7 +581,7 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
         x = self.activation(self.fc_1(x))
         x = self.activation(self.fc_2(x))
         x_1 = self.activation(self.fc_3(x))
-        x_2 = self.activation(self.fc_3_5(x))
+        x_2 = self.tanh(self.fc_3_5(x))
         x = torch.concat((x_1, x_2), dim=-1)
         x = self.fc_4(x)
         return self.sigmoid(x)

@@ -1,7 +1,7 @@
 import rawpy
 import os
 import numpy as np
-
+import math
 
 path_to_images = 'C:/Users/Rani/Desktop/ai_training_immages' # foldernames are 1 ... 16
 
@@ -46,10 +46,9 @@ def get_all_images(path_to_images, width=512, height=768, start = 0):
         for _, _, pics in os.walk(path_to_images + '/' + f):
             for pic in pics:
                 
-                if i*total_transformations <= start:
+                if i < math.ceil(start/total_transformations):
                     i += 1
                     continue
-                print(path_to_images + '/' + f +'/' + pic)
                 npImg = load_nef(path_to_images + '/' + f +'/' + pic)
                 for img in get_all_splits(npImg):
                     yield img

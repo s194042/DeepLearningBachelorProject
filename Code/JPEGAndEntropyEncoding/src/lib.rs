@@ -5,12 +5,14 @@ mod quantization;
 mod arithmetic_encoding;
 mod JPEGSteps;
 mod entropy_encoding_step;
+use std::{sync::{Arc,Mutex}};
 
 pub struct JPEGContainer{
     y_channel : Vec<Vec<f64>>,
     cb_channel : Vec<Vec<f64>>,
     cr_channel : Vec<Vec<f64>>,
     original_size : (usize,usize),
+    Qf : f64,
     sample_type : Sampling,
 }
 
@@ -39,10 +41,11 @@ fn JPEGAndEntropyEncoding(_py: Python, m: &PyModule) -> PyResult<()> {
 
 #[pyfunction]
 fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64) -> Py<PyAny>{
+    let mut result_vector = Arc::new(Mutex::new(vec![JPEGSteps::CHANNEL_PROCESSING_RESULT::Empty; 3]));
 
-    let mut downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, Sampling::Down444);
-    let mut dct_image = JPEGSteps::dct_and_quantize_image(downsampled_image, Qf);
-    let mut inverse_dct_image = JPEGSteps::inverse_quantize_and_dct_image(dct_image, Qf);
+    let mut downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, Sampling::Down444, Qf);
+    let mut dct_image = JPEGSteps::parallel_function_over_channels(downsampled_image, Arc::new(JPEGSteps::dct_and_quantization_over_channel), result_vector.clone());
+    let mut inverse_dct_image = JPEGSteps::parallel_function_over_channels(dct_image, Arc::new(JPEGSteps::inverse_quantization_and_dct_over_channel), result_vector.clone());
     let mut original_image = JPEGSteps::upsample_and_inverse_color_transform_image(inverse_dct_image);
     return Python::with_gil(|py| original_image.to_object(py));
 }

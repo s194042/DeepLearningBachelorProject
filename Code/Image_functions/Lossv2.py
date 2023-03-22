@@ -500,10 +500,13 @@ class ReductionB(nn.Module): # Based on inception v4
 class Loss(nn.Module): #depthwise Seperable Conv with down sampling
     def __init__(self):
         super(Loss, self).__init__()
-        self._1 = Stem(6)
+        self._0 = Stem(6)
+        self._1 = InceptionA(128)
         self._2 = InceptionA(128)
         self._3 = InceptionA(128)
         self._4 = InceptionA(128)
+        self._4_1 = InceptionA(128)
+        self._4_2 = InceptionA(128)
 
         self._5 = ReductionA(128)
 
@@ -521,11 +524,12 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
 
         self._14 = InceptionB(1024)
         self._15 = InceptionB(1024)
+        self._16 = InceptionB(1024)
+        self._17 = InceptionB(1024)
 
-        self._16 = ReductionB(1024)
+        self._18 = ReductionB(1024)
 
-        self._17 = InceptionB(2048)
-        self._18 = InceptionB(2048)
+        self._19 = InceptionB(2048)
 
         self.pool = nn.AvgPool2d(kernel_size=(4,6))
 
@@ -546,10 +550,13 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
         
 
     def forward(self, x):
+        x = self._0(x)
         x = self._1(x)
         x = self._2(x)
         x = self._3(x)
         x = self._4(x)
+        x = self._4_1(x)
+        x = self._4_2(x)
         x = self._5(x)
         x = self._6(x)
         x = self._7(x)
@@ -562,8 +569,9 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
         x = self._14(x)
         x = self._15(x)
         x = self._16(x)
-        x = self._17(x) 
+        x = self._17(x)
         x = self._18(x)
+        x = self._19(x) 
         x = self.pool(x)
 
 
@@ -573,7 +581,7 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
         x = self.activation(self.fc_1(x))
         x = self.activation(self.fc_2(x))
         x_1 = self.activation(self.fc_3(x))
-        x_2 = self.tanh(self.fc_3_5(x))
+        x_2 = self.activation(self.fc_3_5(x))
         x = torch.concat((x_1, x_2), dim=-1)
         x = self.fc_4(x)
         return self.sigmoid(x)

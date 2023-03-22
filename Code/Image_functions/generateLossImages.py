@@ -1,9 +1,8 @@
-import math
+
 import torch
 import images
 import augmentations
 import numpy as np
-import torchsummary
 
 ## loss of 0 is perfect, loss with 1 is really bad
 
@@ -105,12 +104,12 @@ class MakeIter(object):
     def __len__(self):
         return 101984400
 
-def get_image_pairs_transforms_with_loss(path='C:/Users/Rani/Desktop/ai_training_immages', cupy=False):
-    imgs = images.get_all_imgs_with_everything(path)
+
+
+
+def get_image_pairs_transforms_with_loss(path='C:/Users/Rani/Desktop/ai_training_immages', cupy=False, start = 0):
+    imgs = images.get_all_imgs_with_everything(path, start)
     for img in imgs:
-
-
-        
         for aug_0 in get_images_with_loss_of_0(img, cupy):
             yield torch.tensor(np.concatenate(((img - 128)/255, img-aug_0), axis=2), dtype=torch.float).permute(2,0,1).to("cuda"), torch.tensor(0.0).to("cuda")
         for aug_0 in get_images_with_loss_of_1(img, cupy):

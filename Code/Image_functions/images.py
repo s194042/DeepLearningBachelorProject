@@ -37,14 +37,20 @@ def get_all_splits(img, width=512, height=768):
         
 
 
+total_transformations = 50*4*71 #50 is the cuts and downsample, 4 is the flips, 71 is the transforms
 
-def get_all_images(path_to_images, width=512, height=768):
+def get_all_images(path_to_images, width=512, height=768, start = 0):
     folders = [str(i) for i in range(5,17)]
+    i = 0
     for f in folders:
         for _, _, pics in os.walk(path_to_images + '/' + f):
+            i += 1
+            if i*total_transformations <= start+1:
+                continue
             for pic in pics:
                 npImg = load_nef(path_to_images + '/' + f +'/' + pic)
                 for img in get_all_splits(npImg):
+                    print(path_to_images + '/' + f +'/' + pic)
                     yield img
 
 
@@ -56,7 +62,7 @@ def get_all_flips_of_image(image):
     yield np.fliplr(image)
 
 
-def get_all_imgs_with_everything(path_to_images):
-    for imgs in get_all_images(path_to_images):
+def get_all_imgs_with_everything(path_to_images, start = 0):
+    for imgs in get_all_images(path_to_images, start):
         for flips in get_all_flips_of_image(imgs):
             yield flips

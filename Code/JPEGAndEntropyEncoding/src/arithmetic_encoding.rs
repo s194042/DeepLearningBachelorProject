@@ -7,6 +7,8 @@ const QUARTER : u64 = WHOLE / 4;
 use std::{collections::{HashMap},hash::Hash, fmt::Debug,fs::File,io::prelude::*,env};
 use rand::Rng;
 
+use crate::entropy_encoding_step::JPEGSymbol;
+
 
 
 pub struct ArithEncoder<T : Eq + Hash + Copy + Debug>{
@@ -63,6 +65,9 @@ impl<T : Eq + Hash + Copy + Debug> ArithEncoder<T> {
         }
         return result;
     }
+
+
+    
 
 
     pub fn message_to_bytes(&mut self) -> Vec<u8>{

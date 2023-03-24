@@ -2,8 +2,9 @@
 #[derive(Debug,PartialEq,Eq,Hash,Clone,Copy)]
 pub enum JPEGSymbol {
     Zeros(u8),
-    Symbol(isize),
+    Symbol(i32),
     EOB,
+    EOF,
     CHANNEL_MARKER,
 }
 
@@ -15,7 +16,7 @@ pub fn run_length_encoding_block(block : &Vec<Vec<f64>>, row : usize, column : u
     for (i,j) in zigzag_sequence.iter(){
         if block[row + i][column + j] != 0.0{
             result.push(JPEGSymbol::Zeros(counter));
-            result.push(JPEGSymbol::Symbol(block[row + i][column + j] as isize));
+            result.push(JPEGSymbol::Symbol(block[row + i][column + j] as i32));
             counter = 0;
         }else{
             counter += 1;

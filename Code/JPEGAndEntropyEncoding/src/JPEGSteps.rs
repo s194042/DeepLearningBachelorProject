@@ -129,30 +129,21 @@ pub fn runlength_encoding_over_channel(mut channel : &mut Vec<Vec<f64>>, Qf : f6
     return CHANNEL_PROCESSING_RESULT::RUN_LENGTH_RESULT(result);
 }
 
-pub fn entropy_encoding(mut image : JPEGContainer) -> (Vec<(JPEGSymbol,u64)>,Vec<u8>,JPEGSymbol){
+pub fn entropy_encoding(mut image : JPEGContainer){
     let results_vector = Arc::new(Mutex::new(vec![CHANNEL_PROCESSING_RESULT::Empty]));
 
     parallel_function_over_channels(image, Arc::new(runlength_encoding_over_channel), results_vector.clone());
 
     let mut total_run_length_message = vec![];
     for _ in 0..3{total_run_length_message.extend(match results_vector.lock().unwrap().pop().unwrap(){
-        CHANNEL_PROCESSING_RESULT::Empty => panic!("Run-length encoding failed"),
+        CHANNEL_PROCESSING_RESULT::Empty => panic!(),
         CHANNEL_PROCESSING_RESULT::RUN_LENGTH_RESULT(coded_message) => coded_message,
     })} 
-
-
-
     
-    let mut arith_encoder = arithmetic_encoding::ArithEncoder::new(total_run_length_message, JPEGSymbol::EOB);
-    arith_encoder.encode();
-    return (arith_encoder.model_to_freq_vec(),arith_encoder.encoded_message,arith_encoder.model.end);
-}
+    let arith_encoder = arithmetic_encoding::ArithEncoder::new(total_run_length_message, JPEGSymbol::EOB);
 
-pub fn write_to_json(message : Vec<u8>, freq_vec : Vec<(JPEGSymbol,u64)>, eof : JPEGSymbol, path : String){
 
 }
-
-
 
 pub fn inverse_quantization_and_dct_over_channel(channel : &mut Vec<Vec<f64>>, Qf : f64, chroma : bool) -> CHANNEL_PROCESSING_RESULT{
     let quantization_matrix = if chroma {quantization::gen_quantize_chroma_matrix(Qf)} else {quantization::gen_quantize_lumi_matrix(Qf)};

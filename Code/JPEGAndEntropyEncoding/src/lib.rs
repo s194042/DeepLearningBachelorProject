@@ -5,6 +5,7 @@ mod quantization;
 mod arithmetic_encoding;
 mod JPEGSteps;
 mod entropy_encoding_step;
+mod file_io;
 use std::{sync::{Arc,Mutex}};
 
 pub struct JPEGContainer{

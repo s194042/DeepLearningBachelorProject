@@ -5,7 +5,7 @@ import math
 
 path_to_images = 'C:/Users/Rani/Desktop/ai_training_immages' # foldernames are 1 ... 16
 
-def load_nef(path = 'C:/Users/Rani/Desktop/ai_training_immages' + "/16/_DSC0570.nef"):
+def load_nef(path = 'C:/Users/Rani/Desktop/ai_training_immages' + "/1/_DSC0001.nef"):
     img = rawpy.imread(path).postprocess()
     width, height, _ = img.shape
     if width < height:

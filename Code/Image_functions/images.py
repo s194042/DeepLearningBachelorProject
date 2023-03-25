@@ -11,7 +11,6 @@ def load_nef(path = 'C:/Users/Rani/Desktop/ai_training_immages' + "/1/_DSC0001.n
     
     width, height, _ = img.shape
     if width < height:
-        print(img.shape)
         return img
     return torch.rot90(img)
 

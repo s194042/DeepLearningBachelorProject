@@ -163,30 +163,31 @@ class MakeIter(object):
 
 
 def get_image_pairs_transforms_with_loss(path='C:/Users/Rani/Desktop/ai_training_immages', start = 0):
-    
+    si = 512, 768
+    extra = torch.zeros(512, 768, 2, device=torch.device('cuda'))
     imgs = images.get_all_imgs_with_everything(path, start)
     for img in imgs:  # total is 117
         for aug_0 in get_images_with_loss_of_0(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.001, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.001, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_1(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.999, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.999, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_2(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.2, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.2, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_6(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.6, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.6, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_4(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.4, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.4, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_8(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.8, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.8, device=torch.device('cuda'))
         
         for aug_0 in get_images_with_loss_of_0_1(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.1, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.1, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_9(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.9, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.9, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_7(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.7, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.7, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_3(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.3, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.3, device=torch.device('cuda'))
         for aug_0 in get_images_with_loss_of_0_5(img):
-            yield torch.concatenate(((img - 128)/255, img-aug_0), axis=2).permute(2,0,1), torch.tensor(0.5, device=torch.device('cuda'))
+            yield torch.concatenate(((img - 128)/255, img-aug_0, extra), axis=2).permute(2,0,1), torch.tensor(0.5, device=torch.device('cuda'))
         

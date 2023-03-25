@@ -500,7 +500,7 @@ class ReductionB(nn.Module): # Based on inception v4
 class Loss(nn.Module): #depthwise Seperable Conv with down sampling
     def __init__(self):
         super(Loss, self).__init__()
-        self._0 = Stem(6)
+        self._0 = Stem(8)
         self._1 = InceptionA(128)
         self._2 = InceptionA(128)
         self._3 = InceptionA(128)

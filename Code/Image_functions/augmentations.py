@@ -29,7 +29,7 @@ def applyFilter(image, filter, times=1):
 def sharpen(image, times = 1):
     filter = torch.tensor([    [0,-1,0],
                                 [-1,5,-1],
-                                [0,-1,0]], device=torch.device('cuda'), dtype=torch.float32)
+                                [0,-1,0]], device=torch.device('cuda'))
     
     return applyFilter(image, filter, times)
 

@@ -4,8 +4,8 @@ import numpy as np
 from torchsummary import summary
 
 
-slim = True
-seperable = True
+slim = False
+seperable = False
 
 
 class Stem(nn.Module): # Based very loosly on inception v4

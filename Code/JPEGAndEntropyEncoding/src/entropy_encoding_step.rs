@@ -26,6 +26,18 @@ pub fn run_length_encoding_block(block : &Vec<Vec<f64>>, row : usize, column : u
     result
 }
 
+pub fn run_length_decoding_block(block : &mut Vec<Vec<f64>>, row : usize, column : usize, zigzag_sequence : &Vec<(usize,usize)>, run_length_encoding : &Vec<JPEGSymbol>, run_length_index : &mut usize){
+    let mut zigzag_index = 0;
+    loop{
+        match run_length_encoding[*run_length_index] {
+            JPEGSymbol::Zeros(x) => {zigzag_index += x as usize},
+            JPEGSymbol::Symbol(x) => {block[row + zigzag_sequence[zigzag_index].0][column + zigzag_sequence[zigzag_index].1] = x as f64},
+            JPEGSymbol::EOB => return,
+            _ => panic!("run_length decoding found a symbol it should not have")
+        }
+    }
+}
+
 
 pub fn generate_zigzag_sequence(size : usize) -> Vec<(usize,usize)>{
     let mut zigzag_sequence = vec![];

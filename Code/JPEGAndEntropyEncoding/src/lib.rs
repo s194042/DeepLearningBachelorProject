@@ -25,7 +25,7 @@ impl ToPyObject for JPEGContainer {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq,Debug,Copy, Clone)]
 pub enum Sampling {
     Down444,
     Down422,
@@ -54,14 +54,18 @@ fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64) -> Py<P
 #[pyfunction]
 fn JPEG_compress_to_file(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, path : &str){
     let container = JPEG_compress_to_blocks(image, Qf);
-    let original_size = container.original_size;
+    let aux_data = file_io::AuxiliaryData{
+        original_size : container.original_size,
+        Qf : container.Qf,
+        sample_type : container.sample_type,
+    };
     let mut arith_encoder = JPEGSteps::entropy_encoding(container);
-    file_io::arithmetic_encoding_to_file(&arith_encoder, original_size, path);
+    file_io::arithmetic_encoding_to_file(&arith_encoder, aux_data, path);
 }
 
 #[pyfunction]
 fn JPEG_decompress_from_file(path : &str){
-    let  ((h,w),mut arith_encoder) = file_io::arithmetic_encoding_from_file(path);
+    let  (aux_data,mut arith_encoder) = file_io::arithmetic_encoding_from_file(path);
 
 }
 

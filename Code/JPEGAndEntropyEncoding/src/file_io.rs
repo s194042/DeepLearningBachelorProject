@@ -1,6 +1,6 @@
 use std::{fs::File,io::prelude::*,env};
 
-use crate::{entropy_encoding_step::JPEGSymbol, arithmetic_encoding::ArithEncoder};
+use crate::{entropy_encoding_step::JPEGSymbol, arithmetic_encoding::ArithEncoder,Sampling};
 
 
 
@@ -10,19 +10,25 @@ pub struct BinaryBuffer{
     read_index : usize,
 }
 
+pub struct AuxiliaryData{
+    pub original_size : (usize,usize),
+    pub Qf : f64,
+    pub sample_type : Sampling
+}
 
-pub fn arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>, original_size : (usize,usize), path : &str){
 
-    let buffer = encode_buffer(&arith_encoder.model_to_freq_vec(), &arith_encoder.encoded_message,original_size);
+pub fn arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>,aux_data : AuxiliaryData , path : &str){
+
+    let buffer = encode_buffer(&arith_encoder.model_to_freq_vec(), &arith_encoder.encoded_message,&aux_data);
     write_to_bin(&buffer, path)
 
 }
 
-pub fn arithmetic_encoding_from_file(path : &str) -> ((i32,i32),ArithEncoder<JPEGSymbol>){
+pub fn arithmetic_encoding_from_file(path : &str) -> (AuxiliaryData,ArithEncoder<JPEGSymbol>){
     let mut buffer = load_from_bin(path);
-    let ((h,w),freq_vec,encoded_message) = decode_buffer(&mut buffer);
+    let (aux_data,freq_vec,encoded_message) = decode_buffer(&mut buffer);
 
-    return ((h,w),ArithEncoder::from_encoded_message(freq_vec, encoded_message, JPEGSymbol::EOF));
+    return (aux_data,ArithEncoder::from_encoded_message(freq_vec, encoded_message, JPEGSymbol::EOF));
 }
 
 
@@ -46,7 +52,7 @@ pub fn load_from_bin(path : &str) -> BinaryBuffer{
 
 
 
-pub fn encode_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &Vec<u8>, original_size : (usize,usize)) -> BinaryBuffer{
+pub fn encode_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &Vec<u8>, aux_data : &AuxiliaryData) -> BinaryBuffer{
 
     let mut buffer_result = BinaryBuffer{
         buffer : vec![],
@@ -56,8 +62,15 @@ pub fn encode_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &Vec<u
 
     let buffer = &mut buffer_result;
 
-    push_i32_to_buffer(buffer, original_size.0 as i32);
-    push_i32_to_buffer(buffer, original_size.1 as i32);
+    push_i32_to_buffer(buffer, aux_data.original_size.0 as i32);
+    push_i32_to_buffer(buffer, aux_data.original_size.1 as i32);
+    push_f64_to_buffer(buffer, aux_data.Qf);
+    push_to_buffer(buffer, 2, match aux_data.sample_type {
+        Sampling::Down420 => 0,
+        Sampling::Down422 => 1,
+        Sampling::Down444 => 2,
+    });
+
 
     for (symbol,freq) in freq_vec.iter(){
         match *symbol{
@@ -78,18 +91,27 @@ pub fn encode_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &Vec<u
 }
 
 
-pub fn decode_buffer(buffer : &mut BinaryBuffer) -> ((i32,i32),Vec<(JPEGSymbol,i32)>,Vec<u8>){
+pub fn decode_buffer(buffer : &mut BinaryBuffer) -> (AuxiliaryData,Vec<(JPEGSymbol,i32)>,Vec<u8>){
     let mut freq_vec = vec![];
 
-    let original_size = (read_from_buffer(buffer, 32) as i32,read_from_buffer(buffer, 32) as i32);
+    let aux_data = AuxiliaryData{
+        original_size : (read_from_buffer(buffer, 32) as usize,read_from_buffer(buffer, 32) as usize),
+        Qf : f64::from_bits(read_from_buffer(buffer, 64)),
+        sample_type : match read_from_buffer(buffer, 2) {
+            0 => Sampling::Down420,
+            1 => Sampling::Down422,
+            2 => Sampling::Down444,
+            _ => panic!("Not a valid sample type")
+        }
+    };
 
     loop{
         let sym = read_from_buffer(buffer, 3);
         match sym{
             0 => freq_vec.push((JPEGSymbol::Zeros(read_from_buffer(buffer, 8) as u8),read_from_buffer(buffer, 32) as i32)),
             1 => freq_vec.push((JPEGSymbol::Symbol(read_from_buffer(buffer, 32) as i32),read_from_buffer(buffer, 32) as i32)),
-            2 => freq_vec.push((JPEGSymbol::CHANNEL_MARKER,read_from_buffer(buffer, 32) as i32)),
-            3 => freq_vec.push((JPEGSymbol::EOB,read_from_buffer(buffer, 32) as i32)),
+            2 => freq_vec.push((JPEGSymbol::EOB,read_from_buffer(buffer, 32) as i32)),
+            3 => freq_vec.push((JPEGSymbol::CHANNEL_MARKER,read_from_buffer(buffer, 32) as i32)),
             4 => {freq_vec.push((JPEGSymbol::EOF,read_from_buffer(buffer, 32) as i32)); break},
             _ => panic!("Unrecognized symbol when decoding buffer"),
         }
@@ -100,7 +122,7 @@ pub fn decode_buffer(buffer : &mut BinaryBuffer) -> ((i32,i32),Vec<(JPEGSymbol,i
     while buffer.read_index < buffer.buffer.len() * 8{
         encoded_message.push(read_from_buffer(buffer, 1) as u8);
     }
-    return (original_size,freq_vec,encoded_message);
+    return (aux_data,freq_vec,encoded_message);
 }
 
 pub fn read_from_buffer(buffer : &mut BinaryBuffer, count : usize) -> u64{
@@ -119,6 +141,16 @@ pub fn push_i32_to_buffer(buffer : &mut BinaryBuffer, to_push32 : i32){
     let mut to_push :u8 = 0;
     for i in 0..4{
         to_push += (to_push32 >> (32 - 8 * (i+1))) as u8;
+        push_to_buffer(buffer, 8, to_push);
+        to_push = 0;
+    }
+}
+
+pub fn push_f64_to_buffer(buffer : &mut BinaryBuffer, to_push64 : f64){
+    let mut to_push : u8 = 0;
+    let to_push64 = to_push64.to_bits();
+    for i in 0..8{
+        to_push += (to_push64 >> (64 - 8 * (i+1))) as u8;
         push_to_buffer(buffer, 8, to_push);
         to_push = 0;
     }
@@ -203,11 +235,18 @@ mod test{
         use JPEGSymbol::*;
         let freq_vec = vec![(Zeros(8),20),(Symbol(-400),30),(EOB,2),(EOF,1)];
         let encoded_message = vec![1,1,1,0,0,0,1,1,0,0,1,0,1,0,1,1];
-        let mut buffer = encode_buffer(&freq_vec, &encoded_message,(212,234));
-        let ((h,w),freq_vec_decoded,encoded_message_decoded) = decode_buffer(&mut buffer);
+        let aux_data = AuxiliaryData{
+            Qf : 0.5,
+            original_size : (212,345),
+            sample_type : Sampling::Down420
+        };
+        let mut buffer = encode_buffer(&freq_vec, &encoded_message,&aux_data);
+        let (aux_data_decoded,freq_vec_decoded,encoded_message_decoded) = decode_buffer(&mut buffer);
         assert_eq!(freq_vec,freq_vec_decoded);
-        assert_eq!(encoded_message,encoded_message_decoded);
-        assert_eq!((h,w),(212,234));
+        assert_eq!(encoded_message,encoded_message_decoded[0..encoded_message.len()]);
+        assert_eq!(aux_data.original_size,aux_data_decoded.original_size);
+        assert_eq!(aux_data.sample_type,aux_data_decoded.sample_type);
+        assert_eq!(aux_data.Qf,aux_data_decoded.Qf);
     }
 
 }

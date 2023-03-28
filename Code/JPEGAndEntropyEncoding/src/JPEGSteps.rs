@@ -1,4 +1,4 @@
-use crate::{JPEGContainer,Sampling::*,Sampling, dct,quantization,entropy_encoding_step::{*},arithmetic_encoding::{self, ArithEncoder}};
+use crate::{JPEGContainer,Sampling::*,Sampling, dct,quantization,entropy_encoding_step::{*},arithmetic_encoding::{self, ArithEncoder}, file_io::AuxiliaryData};
 use crate::colorspace_transforms::*;
 use std::{ops::DerefMut, io::Empty};
 use std::thread;
@@ -10,7 +10,7 @@ use std::sync::{Arc,Mutex};
 pub enum CHANNEL_PROCESSING_RESULT{
     Empty,
     RUN_LENGTH_COMPRESS(Vec<JPEGSymbol>),
-    RUN_LENGTH_DECOMPRESS(Vec<Vec<usize>>),
+    RUN_LENGTH_DECOMPRESS(Vec<Vec<f64>>),
 }
 
 
@@ -146,14 +146,82 @@ pub fn entropy_encoding(mut image : JPEGContainer) -> ArithEncoder<JPEGSymbol>{
     return arith_encoder;
 
 }
-/* 
-pub fn entropy_decode(arith_encoder : ArithEncoder<JPEGSymbol>){
+
+pub fn entropy_decode(arith_encoder : ArithEncoder<JPEGSymbol>, aux_data : Arc<AuxiliaryData>) -> JPEGContainer{
+
+    let results_vector = Arc::new(Mutex::new(vec![CHANNEL_PROCESSING_RESULT::Empty]));
+    let mut message_index = 0;
+    let mut threads = vec![];
+
+    for i in 0..3{
+
+        loop{
+            let mut channel_encoding = vec![];
+            if arith_encoder.message[message_index] == JPEGSymbol::CHANNEL_MARKER{
+                message_index += 1;
+                let a = aux_data.clone();
+                let r = results_vector.clone();
+                threads.push(thread::spawn(move || {
+                    let channel_encoding = channel_encoding;
+                    r.lock().unwrap()[i] = channel_from_runlength_encoding(&channel_encoding, a, i > 0);
+                }))
+            }else{
+                channel_encoding.push(arith_encoder.message[message_index]);
+                message_index += 1;
+            }
+        }
+    }
+    for thread in threads{
+        thread.join().unwrap();
+    }
+
+    let containter = JPEGContainer{
+        y_channel : match results_vector.lock().unwrap().remove(0){
+            CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
+            _ => panic!("Wrong run_length decoding result")
+        },
+        cb_channel : match results_vector.lock().unwrap().remove(0){
+            CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
+            _ => panic!("Wrong run_length decoding result")
+        },
+        cr_channel : match results_vector.lock().unwrap().remove(0){
+            CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
+            _ => panic!("Wrong run_length decoding result")
+        },
+        Qf : aux_data.Qf,
+        original_size : aux_data.original_size,
+        sample_type : aux_data.sample_type
+    };
+
+    return containter
+
 
 }
 
-*/
-pub fn channel_from_runlength_encoding(channel_encoding : &Vec<JPEGSymbol>){
-    
+
+pub fn channel_from_runlength_encoding(channel_encoding : &Vec<JPEGSymbol>, aux_data : Arc<AuxiliaryData>, chroma : bool) -> CHANNEL_PROCESSING_RESULT{
+    let (height,width) = (8 * (aux_data.original_size.0 as f64 / 8.0).ceil() as usize,8 * (aux_data.original_size.1 as f64 / 8.0).ceil() as usize);
+
+    let (subsample_height,subsample_width) = match aux_data.sample_type {
+        Down444 => (height,width),
+        Down422 => (height,((width / 8) as f64 / 2.0).ceil() as usize * 8),
+        Down420 => (((height / 8) as f64 / 2.0).ceil() as usize * 8,((width / 8) as f64 / 2.0).ceil() as usize * 8),
+    };
+    let mut result = vec![vec![0.0; if chroma {subsample_width} else {width}];if chroma {subsample_height} else {height}];
+
+
+    let zigzag_sequence = generate_zigzag_sequence(8);
+    let mut run_length_index = 0;
+
+    for i in 0..height / 8{
+        for j in 0..width / 8{
+            run_length_decoding_block(&mut result, i * 8, j * 8, &zigzag_sequence, channel_encoding, &mut run_length_index);
+        }
+    }
+
+    return CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(result);
+
+
 }
 
 pub fn inverse_quantization_and_dct_over_channel(channel : &mut Vec<Vec<f64>>, Qf : f64, chroma : bool) -> CHANNEL_PROCESSING_RESULT{

@@ -1,4 +1,4 @@
-use crate::{JPEGContainer,Sampling::*,Sampling, dct,quantization,entropy_encoding_step::{*},arithmetic_encoding};
+use crate::{JPEGContainer,Sampling::*,Sampling, dct,quantization,entropy_encoding_step::{*},arithmetic_encoding::{self, ArithEncoder}};
 use crate::colorspace_transforms::*;
 use std::{ops::DerefMut, io::Empty};
 use std::thread;
@@ -9,7 +9,8 @@ use std::sync::{Arc,Mutex};
 #[derive(Clone)]
 pub enum CHANNEL_PROCESSING_RESULT{
     Empty,
-    RUN_LENGTH_RESULT(Vec<JPEGSymbol>),
+    RUN_LENGTH_COMPRESS(Vec<JPEGSymbol>),
+    RUN_LENGTH_DECOMPRESS(Vec<Vec<usize>>),
 }
 
 
@@ -126,23 +127,33 @@ pub fn runlength_encoding_over_channel(mut channel : &mut Vec<Vec<f64>>, Qf : f6
     }
     result.push(JPEGSymbol::CHANNEL_MARKER);
 
-    return CHANNEL_PROCESSING_RESULT::RUN_LENGTH_RESULT(result);
+    return CHANNEL_PROCESSING_RESULT::RUN_LENGTH_COMPRESS(result);
 }
 
-pub fn entropy_encoding(mut image : JPEGContainer){
+pub fn entropy_encoding(mut image : JPEGContainer) -> ArithEncoder<JPEGSymbol>{
     let results_vector = Arc::new(Mutex::new(vec![CHANNEL_PROCESSING_RESULT::Empty]));
 
     parallel_function_over_channels(image, Arc::new(runlength_encoding_over_channel), results_vector.clone());
 
     let mut total_run_length_message = vec![];
     for _ in 0..3{total_run_length_message.extend(match results_vector.lock().unwrap().pop().unwrap(){
-        CHANNEL_PROCESSING_RESULT::Empty => panic!(),
-        CHANNEL_PROCESSING_RESULT::RUN_LENGTH_RESULT(coded_message) => coded_message,
+        CHANNEL_PROCESSING_RESULT::RUN_LENGTH_COMPRESS(coded_message) => coded_message,
+        _ => panic!("Wrong processing result during entropy encoding")
+    
     })} 
     
     let arith_encoder = arithmetic_encoding::ArithEncoder::new(total_run_length_message, JPEGSymbol::EOB);
+    return arith_encoder;
 
+}
+/* 
+pub fn entropy_decode(arith_encoder : ArithEncoder<JPEGSymbol>){
 
+}
+
+*/
+pub fn channel_from_runlength_encoding(channel_encoding : &Vec<JPEGSymbol>){
+    
 }
 
 pub fn inverse_quantization_and_dct_over_channel(channel : &mut Vec<Vec<f64>>, Qf : f64, chroma : bool) -> CHANNEL_PROCESSING_RESULT{

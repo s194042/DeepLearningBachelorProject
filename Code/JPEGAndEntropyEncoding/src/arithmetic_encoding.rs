@@ -25,6 +25,11 @@ impl<T : Eq + Hash + Copy + Debug> ArithEncoder<T> {
         ArithEncoder { message, model, encoded_message: vec![] }
     }
 
+    pub fn from_encoded_message(freq_vec : Vec<(T,i32)>, encoded_message : Vec<u8>, eof : T) -> ArithEncoder<T>{
+        let mut result = ArithEncoder { message: vec![], model: Model::new(&freq_vec, eof), encoded_message: encoded_message };
+        return result;
+    }
+
     pub fn set_new_message(&mut self, message : Vec<T>, eof : T) {
         let freq_count = message.clone().into_iter().fold(&mut HashMap::new(), |s,x| if s.contains_key(&x) {s.insert(x, s.get(&x).unwrap() + 1); s} else{s.insert(x, 1); s}).into_iter().map(|(k,v)| (*k,*v)).collect();
         let model = Model::new(&freq_count, eof);
@@ -37,62 +42,20 @@ impl<T : Eq + Hash + Copy + Debug> ArithEncoder<T> {
         self.encoded_message = encode(&self.model, &self.message)
     }
 
-    pub fn decode(&mut self) -> Vec<T>{
+    pub fn decode(&mut self){
         let res = decode(&self.encoded_message, &self.model);
-        assert_eq!(res,self.message);
-        res
+        self.message = res;
     }
 
-    pub fn write_to_bin(&mut self, path : &str){
-        let mut file = File::create(path).unwrap();
-        file.write_all(&self.message_to_bytes()).unwrap();
-    }
-
-
-    pub fn load_from_bin(&mut self, path : &str){
-        let mut file = File::open(path).unwrap();
-        // read the same file back into a Vec of bytes
-        let mut buffer = Vec::<u8>::new();
-        file.read_to_end(&mut buffer).unwrap();
-        self.encoded_message = self.message_from_bytes(&buffer);
-    }
-
-    pub fn model_to_freq_vec(&self) -> Vec<(T,u64)>{
+    pub fn model_to_freq_vec(&self) -> Vec<(T,i32)>{
         let mut result = vec![];
         for key in self.model.ranges.keys(){
             let (lower,upper,freq) = self.model.get_prob(key);
-            result.push((*key,upper - lower));
+            result.push((*key,(upper - lower) as i32));
         }
         return result;
     }
 
-
-    
-
-
-    pub fn message_to_bytes(&mut self) -> Vec<u8>{
-        let l = (self.encoded_message.len() as f64 / 8.0).ceil() as usize * 8;
-        let mut res : Vec<u8> = vec![0;(l as f64 / 8.0).ceil() as usize];
-        for i in 0..l{
-            res[i / 8] <<= 1;
-            if i < self.encoded_message.len() {res[i / 8] += self.encoded_message[i]};
-        } 
-        res
-    }
-
-    pub fn message_from_bytes(&mut self, bytes : &Vec<u8>) -> Vec<u8>{
-        let l = bytes.len();
-        let mut res : Vec<u8> = vec![0; l * 8];
-        for i in 0..l{
-            let mut current = bytes[i];
-            for j in 0..8{
-                res[i * 8 + 7 - j] = current & 1;
-                current >>= 1;
-            }
-        }
-
-        res
-    }
 
 
 }
@@ -106,13 +69,13 @@ pub struct Model<T : Eq + Hash + Copy + Debug>{
 
 
 impl<T : Eq + Hash + Copy + Debug> Model<T>{
-    pub fn new(freq_vec : &Vec<(T,u64)>, end : T) -> Model<T>{
+    pub fn new(freq_vec : &Vec<(T,i32)>, end : T) -> Model<T>{
         let mut res : HashMap<T,(u64,u64,u64)> = HashMap::new();
         let mut s = 0;
-        let denom = freq_vec.iter().fold(0,|s,(x,y)|  s + y);
+        let denom = freq_vec.iter().fold(0,|s,(x,y)|  s + y) as u64;
         for (sym,freq) in freq_vec{
-            res.insert(*sym,(s,s+freq,denom));
-            s += freq;
+            res.insert(*sym,(s,s+*freq as u64 ,denom));
+            s += *freq as u64;
         }
 
         let model = Model{
@@ -301,10 +264,8 @@ mod test{
         message.push(100);
         let mut ae = ArithEncoder::new(message.clone(), 100);
         ae.encode();
-        assert_eq!(ae.decode(),ae.message);
-        ae.write_to_bin("TestingFiles/test_compression");
-        ae.load_from_bin("TestingFiles/test_compression");
-        assert_eq!(ae.decode(),message);
+        ae.decode();
+        assert_eq!(ae.message,message);
 
 
     }   

@@ -51,9 +51,12 @@ def get_all_images(path_to_images, width=512, height=768, start = 0):
             if i < math.ceil(start/total_transformations):
                 i += 1
                 continue
-            torch_img = load_nef(path_to_images +'/' + pic)#torch.load(path_to_images +'/' + pic).float()#load_nef(path_to_images +'/' + pic)
-            for img in get_all_splits(torch_img):
-                yield img
+            try:
+                torch_img = load_nef(path_to_images +'/' + pic)#torch.load(path_to_images +'/' + pic).float()#load_nef(path_to_images +'/' + pic)
+                for img in get_all_splits(torch_img):
+                    yield img
+            except:
+                print("rawpy problem with picture", pic)
 
 
 def get_all_flips_of_image(image):

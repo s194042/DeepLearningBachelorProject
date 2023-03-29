@@ -66,7 +66,7 @@ record = 1
 epochs = 100
 
 times = [0]*10
-transforms = 117
+transforms = 108
 for epoch in range(start_epoch, epochs):
     training = generateLossImages.MakeIter(generateLossImages.get_image_pairs_transforms_with_loss(cupy=True, start=start_index if epoch == start_epoch else 0)) # start=2*71*50*4))#start_index if epoch == start_epoch else 0)) 
     val = generateLossImages.get_image_pairs_transforms_with_loss("C:/Users/Rani/Desktop/ai_val/16")

@@ -13,53 +13,53 @@ class Stem(nn.Module): # Based very loosly on inception v4
         self,
         channels):
         super(Stem, self).__init__()
-        self.skip_1x1_1 = nn.Conv2d(channels,64, kernel_size=1, padding=0)
-        self.skip_1 = nn.Conv2d(64 if seperable else channels,64, kernel_size=7, padding=2, stride=4, groups=64 if seperable else 1)
-        self.skip_slim_7x1_1 = nn.Conv2d(64 if seperable else channels,64, kernel_size=(7,1), padding=(3,0), stride=(4,1), groups=64 if seperable else 1)
-        self.skip_slim_1x7_1 = nn.Conv2d(64,64, kernel_size=(1,7), padding=(0,3), stride=(1,4), groups=64 if seperable else 1)
+        self.skip_1x1_1 = nn.Conv2d(channels,64, kernel_size=1, padding=0, bias=False)
+        self.skip_1 = nn.Conv2d(64 if seperable else channels,64, kernel_size=7, padding=2, stride=4, groups=64 if seperable else 1, bias=False)
+        self.skip_slim_7x1_1 = nn.Conv2d(64 if seperable else channels,64, kernel_size=(7,1), padding=(3,0), stride=(4,1), groups=64 if seperable else 1, bias=False)
+        self.skip_slim_1x7_1 = nn.Conv2d(64,64, kernel_size=(1,7), padding=(0,3), stride=(1,4), groups=64 if seperable else 1, bias=False)
         
 
-        self.base_1x1 = nn.Conv2d(channels,32, kernel_size=1, padding=0)
-        self.base_3x3 = nn.Conv2d(32 if seperable else channels,32, kernel_size=3, padding=1, stride=2, groups=32 if seperable else 1)
-        self.base_slim_3x1 = nn.Conv2d(32 if seperable else channels,32, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=32 if seperable else 1)
-        self.base_slim_1x3 = nn.Conv2d(32,32, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=32 if seperable else 1)
+        self.base_1x1 = nn.Conv2d(channels,32, kernel_size=1, padding=0, bias=False)
+        self.base_3x3 = nn.Conv2d(32 if seperable else channels,32, kernel_size=3, padding=1, stride=2, groups=32 if seperable else 1, bias=False)
+        self.base_slim_3x1 = nn.Conv2d(32 if seperable else channels,32, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=32 if seperable else 1, bias=False)
+        self.base_slim_1x3 = nn.Conv2d(32,32, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=32 if seperable else 1, bias=False)
         
 
-        self.A_comv_1x1_1 = nn.Conv2d(32,32, kernel_size=1, padding=0)
-        self.A_conv_3x3_1 = nn.Conv2d(32,32, kernel_size=3, padding=1, groups=32 if seperable else 1)
-        self.A_conv_slim_3x1_1 = nn.Conv2d(32,32, kernel_size=(3,1), padding=(1,0), groups=32 if seperable else 1)
-        self.A_conv_slim_1x3_1 = nn.Conv2d(32,32, kernel_size=(1,3), padding=(0,1), groups=32 if seperable else 1)
+        self.A_comv_1x1_1 = nn.Conv2d(32,32, kernel_size=1, padding=0, bias=False)
+        self.A_conv_3x3_1 = nn.Conv2d(32,32, kernel_size=3, padding=1, groups=32 if seperable else 1, bias=False)
+        self.A_conv_slim_3x1_1 = nn.Conv2d(32,32, kernel_size=(3,1), padding=(1,0), groups=32 if seperable else 1, bias=False)
+        self.A_conv_slim_1x3_1 = nn.Conv2d(32,32, kernel_size=(1,3), padding=(0,1), groups=32 if seperable else 1, bias=False)
         
 
-        self.A_comv_1x1_2 = nn.Conv2d(32,32, kernel_size=1, padding=0)
-        self.A_conv_3x3_2 = nn.Conv2d(32,32, kernel_size=3, padding=1, stride=2, groups=32 if seperable else 1)
-        self.A_conv_slim_3x1_2 = nn.Conv2d(32,32, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=32 if seperable else 1)
-        self.A_conv_slim_1x3_2 = nn.Conv2d(32,32, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=32 if seperable else 1)
+        self.A_comv_1x1_2 = nn.Conv2d(32,32, kernel_size=1, padding=0, bias=False)
+        self.A_conv_3x3_2 = nn.Conv2d(32,32, kernel_size=3, padding=1, stride=2, groups=32 if seperable else 1, bias=False)
+        self.A_conv_slim_3x1_2 = nn.Conv2d(32,32, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=32 if seperable else 1, bias=False)
+        self.A_conv_slim_1x3_2 = nn.Conv2d(32,32, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=32 if seperable else 1, bias=False)
         
 
-        self.B_conv_1x1_1 = nn.Conv2d(32,32, kernel_size=1, padding=0)
+        self.B_conv_1x1_1 = nn.Conv2d(32,32, kernel_size=1, padding=0, bias=False)
         self.B_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         
 
-        self.C_comv_1x1_1 = nn.Conv2d(64,64, kernel_size=1, padding=0)
-        self.C_conv_3x3_1 = nn.Conv2d(64,64, kernel_size=3, padding=1, groups=64 if seperable else 1)
-        self.C_conv_slim_3x1_1 = nn.Conv2d(64,64, kernel_size=(3,1), padding=(1,0), groups=64 if seperable else 1)
-        self.C_conv_slim_1x3_1 = nn.Conv2d(64,64, kernel_size=(1,3), padding=(0,1), groups=64 if seperable else 1)
+        self.C_comv_1x1_1 = nn.Conv2d(64,64, kernel_size=1, padding=0, bias=False)
+        self.C_conv_3x3_1 = nn.Conv2d(64,64, kernel_size=3, padding=1, groups=64 if seperable else 1, bias=False)
+        self.C_conv_slim_3x1_1 = nn.Conv2d(64,64, kernel_size=(3,1), padding=(1,0), groups=64 if seperable else 1, bias=False)
+        self.C_conv_slim_1x3_1 = nn.Conv2d(64,64, kernel_size=(1,3), padding=(0,1), groups=64 if seperable else 1, bias=False)
         
-        self.C_comv_1x1_2 = nn.Conv2d(64,64, kernel_size=1, padding=0)
-        self.C_conv_3x3_2 = nn.Conv2d(64,64, kernel_size=3, padding=1, stride=2, groups=64 if seperable else 1)
-        self.C_conv_slim_3x1_2 = nn.Conv2d(64,64, kernel_size=(3,1), stride=(2,1), padding=(1,0), groups=64 if seperable else 1)
-        self.C_conv_slim_1x3_2 = nn.Conv2d(64,64, kernel_size=(1,3), stride=(1,2), padding=(0,1), groups=64 if seperable else 1)
+        self.C_comv_1x1_2 = nn.Conv2d(64,64, kernel_size=1, padding=0, bias=False)
+        self.C_conv_3x3_2 = nn.Conv2d(64,64, kernel_size=3, padding=1, stride=2, groups=64 if seperable else 1, bias=False)
+        self.C_conv_slim_3x1_2 = nn.Conv2d(64,64, kernel_size=(3,1), stride=(2,1), padding=(1,0), groups=64 if seperable else 1, bias=False)
+        self.C_conv_slim_1x3_2 = nn.Conv2d(64,64, kernel_size=(1,3), stride=(1,2), padding=(0,1), groups=64 if seperable else 1, bias=False)
         
 
-        self.D_conv_1x1_1 = nn.Conv2d(64,64, kernel_size=1, padding=0)
+        self.D_conv_1x1_1 = nn.Conv2d(64,64, kernel_size=1, padding=0, bias=False)
         self.D_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         
 
-        self.skip_1x1_2 = nn.Conv2d(64,128, kernel_size=1, padding=0)
-        self.skip_2 = nn.Conv2d(128 if seperable else 64,128, kernel_size=3, padding=1, stride=2, groups=128 if seperable else 1)
-        self.skip_slim_3x1_2 = nn.Conv2d(128 if seperable else 64,128, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=128 if seperable else 1)
-        self.skip_slim_1x3_2 = nn.Conv2d(128,128, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=128 if seperable else 1)
+        self.skip_1x1_2 = nn.Conv2d(64,128, kernel_size=1, padding=0, bias=False)
+        self.skip_2 = nn.Conv2d(128 if seperable else 64,128, kernel_size=3, padding=1, stride=2, groups=128 if seperable else 1, bias=False)
+        self.skip_slim_3x1_2 = nn.Conv2d(128 if seperable else 64,128, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=128 if seperable else 1, bias=False)
+        self.skip_slim_1x3_2 = nn.Conv2d(128,128, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=128 if seperable else 1, bias=False)
         
 
 
@@ -168,24 +168,24 @@ class InceptionA(nn.Module): # Based on inception v4
         self,
         channels):
         super(InceptionA, self).__init__()
-        self.A_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
+        self.A_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
         self.A_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
 
-        self.B_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
+        self.B_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
 
 
-        self.C_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
-        self.C_3x3 = nn.Conv2d(channels//4, channels//4, kernel_size=3, stride=1, padding=1, groups=channels//4 if seperable else 1)
-        self.C_3x1 = nn.Conv2d(channels//4, channels//4, kernel_size=(3,1), stride=1, padding=(1,0), groups=channels//4 if seperable else 1)
-        self.C_1x3 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,3), stride=1, padding=(0,1), groups=channels//4 if seperable else 1)
-        self.C_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0)
+        self.C_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
+        self.C_3x3 = nn.Conv2d(channels//4, channels//4, kernel_size=3, stride=1, padding=1, groups=channels//4 if seperable else 1, bias=False)
+        self.C_3x1 = nn.Conv2d(channels//4, channels//4, kernel_size=(3,1), stride=1, padding=(1,0), groups=channels//4 if seperable else 1, bias=False)
+        self.C_1x3 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,3), stride=1, padding=(0,1), groups=channels//4 if seperable else 1, bias=False)
+        self.C_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0, bias=False)
 
 
-        self.D_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
-        self.D_5x5 = nn.Conv2d(channels//4, channels//4, kernel_size=5, stride=1, padding=2, groups=channels//4 if seperable else 1)
-        self.D_5x1 = nn.Conv2d(channels//4, channels//4, kernel_size=(5,1), stride=1, padding=(2,0), groups=channels//4 if seperable else 1)
-        self.D_1x5 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,5), stride=1, padding=(0,2), groups=channels//4 if seperable else 1)
-        self.D_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0)
+        self.D_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
+        self.D_5x5 = nn.Conv2d(channels//4, channels//4, kernel_size=5, stride=1, padding=2, groups=channels//4 if seperable else 1, bias=False)
+        self.D_5x1 = nn.Conv2d(channels//4, channels//4, kernel_size=(5,1), stride=1, padding=(2,0), groups=channels//4 if seperable else 1, bias=False)
+        self.D_1x5 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,5), stride=1, padding=(0,2), groups=channels//4 if seperable else 1, bias=False)
+        self.D_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0, bias=False)
 
 
         self.activation = nn.ELU()  
@@ -240,25 +240,25 @@ class ReductionA(nn.Module): # Based on inception v4
         self,
         channels):
         super(ReductionA, self).__init__()
-        self.A_1x1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0)
+        self.A_1x1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0, bias=False)
         self.A_pool = nn.MaxPool2d(kernel_size=3, padding=1, stride=2)
 
-        self.B_3x3 = nn.Conv2d(channels,channels, kernel_size=3, padding=1, stride=2, groups=channels if seperable else 1)
-        self.B_3x1 = nn.Conv2d(channels,channels, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels if seperable else 1)
-        self.B_1x3 = nn.Conv2d(channels,channels, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels if seperable else 1)
-        self.B_1x1 = nn.Conv2d(channels,channels, kernel_size=1, padding=0)
+        self.B_3x3 = nn.Conv2d(channels,channels, kernel_size=3, padding=1, stride=2, groups=channels if seperable else 1, bias=False)
+        self.B_3x1 = nn.Conv2d(channels,channels, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels if seperable else 1, bias=False)
+        self.B_1x3 = nn.Conv2d(channels,channels, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels if seperable else 1, bias=False)
+        self.B_1x1 = nn.Conv2d(channels,channels, kernel_size=1, padding=0, bias=False)
 
-        self.C_1x1_1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0)
-        self.C_5x5 = nn.Conv2d(channels//2,channels//2, kernel_size=5, padding=2, stride=2, groups=channels//2 if seperable else 1)
-        self.C_5x1 = nn.Conv2d(channels//2,channels//2, kernel_size=(5,1), padding=(2,0), stride=(2,1), groups=channels//2 if seperable else 1)
-        self.C_1x5 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,5), padding=(0,2), stride=(1,2), groups=channels//2 if seperable else 1)
-        self.C_1x1_2 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0)
+        self.C_1x1_1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0, bias=False)
+        self.C_5x5 = nn.Conv2d(channels//2,channels//2, kernel_size=5, padding=2, stride=2, groups=channels//2 if seperable else 1, bias=False)
+        self.C_5x1 = nn.Conv2d(channels//2,channels//2, kernel_size=(5,1), padding=(2,0), stride=(2,1), groups=channels//2 if seperable else 1, bias=False)
+        self.C_1x5 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,5), padding=(0,2), stride=(1,2), groups=channels//2 if seperable else 1, bias=False)
+        self.C_1x1_2 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0, bias=False)
 
 
-        self.skip = nn.Conv2d(channels,channels*2, kernel_size=3, padding=1, stride=2, groups=channels if seperable else 1)
-        self.skip_slim_3x1 = nn.Conv2d(channels,channels*2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels if seperable else 1)
-        self.skip_slim_1x3 = nn.Conv2d(channels*2,channels*2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels*2 if seperable else 1)
-        self.skip_1x1 = nn.Conv2d(channels*2,channels*2, kernel_size=1, padding=0)
+        self.skip = nn.Conv2d(channels,channels*2, kernel_size=3, padding=1, stride=2, groups=channels if seperable else 1, bias=False)
+        self.skip_slim_3x1 = nn.Conv2d(channels,channels*2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels if seperable else 1, bias=False)
+        self.skip_slim_1x3 = nn.Conv2d(channels*2,channels*2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels*2 if seperable else 1, bias=False)
+        self.skip_1x1 = nn.Conv2d(channels*2,channels*2, kernel_size=1, padding=0, bias=False)
 
 
 
@@ -317,30 +317,30 @@ class InceptionB(nn.Module): # Based on inception v4
         self,
         channels):
         super(InceptionB, self).__init__()
-        self.A_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
+        self.A_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
         self.A_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
 
-        self.B_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
+        self.B_1x1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
 
 
-        self.C_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
-        self.C_7x7 = nn.Conv2d(channels//4, channels//4, kernel_size=7, stride=1, padding=3, groups=channels//4 if seperable else 1)
-        self.C_7x1 = nn.Conv2d(channels//4, channels//4, kernel_size=(7,1), stride=1, padding=(3,0), groups=channels//4 if seperable else 1)
-        self.C_1x7 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,7), stride=1, padding=(0,3), groups=channels//4 if seperable else 1)
-        self.C_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0)
+        self.C_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
+        self.C_7x7 = nn.Conv2d(channels//4, channels//4, kernel_size=7, stride=1, padding=3, groups=channels//4 if seperable else 1, bias=False)
+        self.C_7x1 = nn.Conv2d(channels//4, channels//4, kernel_size=(7,1), stride=1, padding=(3,0), groups=channels//4 if seperable else 1, bias=False)
+        self.C_1x7 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,7), stride=1, padding=(0,3), groups=channels//4 if seperable else 1, bias=False)
+        self.C_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0, bias=False)
 
 
-        self.D_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0)
+        self.D_1x1_1 = nn.Conv2d(channels, channels//4, kernel_size=1, padding=0, bias=False)
 
-        self.D_7x7_1 = nn.Conv2d(channels//4, channels//4, kernel_size=7, stride=1, padding=3, groups=channels//4 if seperable else 1)
-        self.D_7x1_1 = nn.Conv2d(channels//4, channels//4, kernel_size=(7,1), stride=1, padding=(3,0), groups=channels//4 if seperable else 1)
-        self.D_1x7_1 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,7), stride=1, padding=(0,3), groups=channels//4 if seperable else 1)
-        self.D_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0)
+        self.D_7x7_1 = nn.Conv2d(channels//4, channels//4, kernel_size=7, stride=1, padding=3, groups=channels//4 if seperable else 1, bias=False)
+        self.D_7x1_1 = nn.Conv2d(channels//4, channels//4, kernel_size=(7,1), stride=1, padding=(3,0), groups=channels//4 if seperable else 1, bias=False)
+        self.D_1x7_1 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,7), stride=1, padding=(0,3), groups=channels//4 if seperable else 1, bias=False)
+        self.D_1x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0, bias=False)
 
-        self.D_7x7_2 = nn.Conv2d(channels//4, channels//4, kernel_size=7, stride=1, padding=3, groups=channels//4 if seperable else 1)
-        self.D_7x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=(7,1), stride=1, padding=(3,0), groups=channels//4 if seperable else 1)
-        self.D_1x7_2 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,7), stride=1, padding=(0,3), groups=channels//4 if seperable else 1)
-        self.D_1x1_3 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0)
+        self.D_7x7_2 = nn.Conv2d(channels//4, channels//4, kernel_size=7, stride=1, padding=3, groups=channels//4 if seperable else 1, bias=False)
+        self.D_7x1_2 = nn.Conv2d(channels//4, channels//4, kernel_size=(7,1), stride=1, padding=(3,0), groups=channels//4 if seperable else 1, bias=False)
+        self.D_1x7_2 = nn.Conv2d(channels//4, channels//4, kernel_size=(1,7), stride=1, padding=(0,3), groups=channels//4 if seperable else 1, bias=False)
+        self.D_1x1_3 = nn.Conv2d(channels//4, channels//4, kernel_size=1, padding=0, bias=False)
 
 
         self.activation = nn.ELU()  
@@ -409,29 +409,29 @@ class ReductionB(nn.Module): # Based on inception v4
         super(ReductionB, self).__init__()
         self.A_pool = nn.MaxPool2d(kernel_size=3, padding=1, stride=2)
 
-        self.B_1x1_1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0)
-        self.B_3x3 = nn.Conv2d(channels//2,channels//2, kernel_size=3, padding=1, stride=2, groups=channels//2 if seperable else 1)
-        self.B_3x1 = nn.Conv2d(channels//2,channels//2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels//2 if seperable else 1)
-        self.B_1x3 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels//2 if seperable else 1)
-        self.B_1x1_2 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0)
+        self.B_1x1_1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0, bias=False)
+        self.B_3x3 = nn.Conv2d(channels//2,channels//2, kernel_size=3, padding=1, stride=2, groups=channels//2 if seperable else 1, bias=False)
+        self.B_3x1 = nn.Conv2d(channels//2,channels//2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels//2 if seperable else 1, bias=False)
+        self.B_1x3 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels//2 if seperable else 1, bias=False)
+        self.B_1x1_2 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0, bias=False)
 
 
-        self.C_1x1_1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0)
-        self.C_7x7 = nn.Conv2d(channels//2,channels//2, kernel_size=7, padding=3, groups=channels//2 if seperable else 1)
-        self.C_7x1 = nn.Conv2d(channels//2,channels//2, kernel_size=(7,1), padding=(3,0), groups=channels//2 if seperable else 1)
-        self.C_1x7 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,7), padding=(0,3), groups=channels//2 if seperable else 1)
-        self.C_1x1_2 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0)
+        self.C_1x1_1 = nn.Conv2d(channels,channels//2, kernel_size=1, padding=0, bias=False)
+        self.C_7x7 = nn.Conv2d(channels//2,channels//2, kernel_size=7, padding=3, groups=channels//2 if seperable else 1, bias=False)
+        self.C_7x1 = nn.Conv2d(channels//2,channels//2, kernel_size=(7,1), padding=(3,0), groups=channels//2 if seperable else 1, bias=False)
+        self.C_1x7 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,7), padding=(0,3), groups=channels//2 if seperable else 1, bias=False)
+        self.C_1x1_2 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0, bias=False)
 
-        self.C_3x3 = nn.Conv2d(channels//2,channels//2, kernel_size=3, stride=2, padding=1, groups=channels//2 if seperable else 1)
-        self.C_3x1 = nn.Conv2d(channels//2, channels//2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels//2 if seperable else 1)
-        self.C_1x3 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels//2 if seperable else 1)
-        self.C_1x1_3 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0)
+        self.C_3x3 = nn.Conv2d(channels//2,channels//2, kernel_size=3, stride=2, padding=1, groups=channels//2 if seperable else 1, bias=False)
+        self.C_3x1 = nn.Conv2d(channels//2, channels//2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels//2 if seperable else 1, bias=False)
+        self.C_1x3 = nn.Conv2d(channels//2,channels//2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels//2 if seperable else 1, bias=False)
+        self.C_1x1_3 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0, bias=False)
 
 
-        self.skip = nn.Conv2d(channels,channels*2, kernel_size=3, padding=1, stride=2, groups=channels if seperable else 1)
-        self.skip_slim_3x1 = nn.Conv2d(channels,channels*2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels if seperable else 1)
-        self.skip_slim_1x3 = nn.Conv2d(channels*2,channels*2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels*2 if seperable else 1)
-        self.skip_1x1 = nn.Conv2d(channels*2,channels*2, kernel_size=1, padding=0)
+        self.skip = nn.Conv2d(channels,channels*2, kernel_size=3, padding=1, stride=2, groups=channels if seperable else 1, bias=False)
+        self.skip_slim_3x1 = nn.Conv2d(channels,channels*2, kernel_size=(3,1), padding=(1,0), stride=(2,1), groups=channels if seperable else 1, bias=False)
+        self.skip_slim_1x3 = nn.Conv2d(channels*2,channels*2, kernel_size=(1,3), padding=(0,1), stride=(1,2), groups=channels*2 if seperable else 1, bias=False)
+        self.skip_1x1 = nn.Conv2d(channels*2,channels*2, kernel_size=1, padding=0, bias=False)
 
 
 

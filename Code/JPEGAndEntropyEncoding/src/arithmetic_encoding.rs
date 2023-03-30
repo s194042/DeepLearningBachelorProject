@@ -15,6 +15,7 @@ pub struct ArithEncoder<T : Eq + Hash + Copy + Debug>{
     pub message : Vec<T>,
     pub model : Model<T>,
     pub encoded_message : Vec<u8>,
+    pub freq_count : Vec<(T,i32)>,
 }
 
 
@@ -22,11 +23,11 @@ impl<T : Eq + Hash + Copy + Debug> ArithEncoder<T> {
     pub fn new(message : Vec<T>, eof : T) -> ArithEncoder<T>{
         let freq_count = message.clone().into_iter().fold(&mut HashMap::new(), |s,x| if s.contains_key(&x) {s.insert(x, s.get(&x).unwrap() + 1); s} else{s.insert(x, 1); s}).into_iter().map(|(k,v)| (*k,*v)).collect();
         let model = Model::new(&freq_count, eof);
-        ArithEncoder { message, model, encoded_message: vec![] }
+        ArithEncoder { message, model, encoded_message: vec![] ,freq_count}
     }
 
     pub fn from_encoded_message(freq_vec : Vec<(T,i32)>, encoded_message : Vec<u8>, eof : T) -> ArithEncoder<T>{
-        let mut result = ArithEncoder { message: vec![], model: Model::new(&freq_vec, eof), encoded_message: encoded_message };
+        let mut result = ArithEncoder { message: vec![], model: Model::new(&freq_vec, eof), encoded_message: encoded_message , freq_count : freq_vec};
         return result;
     }
 
@@ -47,16 +48,6 @@ impl<T : Eq + Hash + Copy + Debug> ArithEncoder<T> {
         self.message = res;
     }
 
-    pub fn model_to_freq_vec(&self) -> Vec<(T,i32)>{
-        let mut result = vec![];
-        for key in self.model.ranges.keys(){
-            let (lower,upper,freq) = self.model.get_prob(key);
-            result.push((*key,(upper - lower) as i32));
-        }
-        return result;
-    }
-
-
 
 }
 
@@ -71,9 +62,11 @@ pub struct Model<T : Eq + Hash + Copy + Debug>{
 impl<T : Eq + Hash + Copy + Debug> Model<T>{
     pub fn new(freq_vec : &Vec<(T,i32)>, end : T) -> Model<T>{
         let mut res : HashMap<T,(u64,u64,u64)> = HashMap::new();
+        let mut sorted_freq_vec = freq_vec.clone();
+        sorted_freq_vec.sort_unstable_by_key(|elem| elem.1);
         let mut s = 0;
         let denom = freq_vec.iter().fold(0,|s,(x,y)|  s + y) as u64;
-        for (sym,freq) in freq_vec{
+        for (sym,freq) in &sorted_freq_vec{
             res.insert(*sym,(s,s+*freq as u64 ,denom));
             s += *freq as u64;
         }
@@ -234,12 +227,12 @@ mod test{
 
     #[test]
     fn test_create_model(){
-        let res = Model::new(&vec![((1,3),10),((3,1),4),((7,1),20),((21,7),4)],(21,7));
+        let res = Model::new(&vec![((1,3),10),((3,1),4),((7,1),20),((21,7),5)],(21,7));
         println!("{:?}",res.ranges);
-        assert_eq!(HashMap::from([((1,3),(0,10,38)),
-                                    ((3,1),(10,14,38)),
-                                    ((7,1),(14,34,38)),
-                                    ((21,7),(34,38,38))]),res.ranges);
+        assert_eq!(HashMap::from([((1,3),(9,19,39)),
+                                    ((3,1),(0,4,39)),
+                                    ((7,1),(19,39,39)),
+                                    ((21,7),(4,9,39))]),res.ranges);
     }
 
     #[test]
@@ -269,5 +262,7 @@ mod test{
 
 
     }   
+
+
 
 }

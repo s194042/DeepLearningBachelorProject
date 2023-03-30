@@ -1,5 +1,6 @@
 use crate::{JPEGContainer,Sampling::*,Sampling, dct,quantization,entropy_encoding_step::{*},arithmetic_encoding::{self, ArithEncoder}, file_io::AuxiliaryData};
 use crate::colorspace_transforms::*;
+use core::panic;
 use std::{ops::DerefMut, io::Empty};
 use std::thread;
 use std::sync::mpsc::{self, channel};
@@ -122,16 +123,15 @@ pub fn runlength_encoding_over_channel(mut channel : &mut Vec<Vec<f64>>, Qf : f6
 
     for i in 0..channel.len() / 8{
         for j in 0..channel[0].len() / 8{
-            result.extend(run_length_encoding_block(channel, i, j, &zigzag_sequence))
+            result.extend(run_length_encoding_block(channel, i * 8, j * 8, &zigzag_sequence))
         }
     }
     result.push(JPEGSymbol::CHANNEL_MARKER);
-
     return CHANNEL_PROCESSING_RESULT::RUN_LENGTH_COMPRESS(result);
 }
 
 pub fn entropy_encoding(mut image : JPEGContainer) -> ArithEncoder<JPEGSymbol>{
-    let results_vector = Arc::new(Mutex::new(vec![CHANNEL_PROCESSING_RESULT::Empty]));
+    let results_vector = Arc::new(Mutex::new(vec![CHANNEL_PROCESSING_RESULT::Empty;3]));
 
     parallel_function_over_channels(image, Arc::new(runlength_encoding_over_channel), results_vector.clone());
 
@@ -141,22 +141,22 @@ pub fn entropy_encoding(mut image : JPEGContainer) -> ArithEncoder<JPEGSymbol>{
         _ => panic!("Wrong processing result during entropy encoding")
     
     })} 
-    
-    let arith_encoder = arithmetic_encoding::ArithEncoder::new(total_run_length_message, JPEGSymbol::EOB);
+    total_run_length_message.push(JPEGSymbol::EOF);
+    let arith_encoder = arithmetic_encoding::ArithEncoder::new(total_run_length_message, JPEGSymbol::EOF);
     return arith_encoder;
 
 }
 
 pub fn entropy_decode(arith_encoder : ArithEncoder<JPEGSymbol>, aux_data : Arc<AuxiliaryData>) -> JPEGContainer{
 
-    let results_vector = Arc::new(Mutex::new(vec![CHANNEL_PROCESSING_RESULT::Empty]));
+    let results_vector = Arc::new(Mutex::new(vec![CHANNEL_PROCESSING_RESULT::Empty;3]));
     let mut message_index = 0;
     let mut threads = vec![];
 
     for i in 0..3{
 
+        let mut channel_encoding = vec![];
         loop{
-            let mut channel_encoding = vec![];
             if arith_encoder.message[message_index] == JPEGSymbol::CHANNEL_MARKER{
                 message_index += 1;
                 let a = aux_data.clone();
@@ -164,7 +164,8 @@ pub fn entropy_decode(arith_encoder : ArithEncoder<JPEGSymbol>, aux_data : Arc<A
                 threads.push(thread::spawn(move || {
                     let channel_encoding = channel_encoding;
                     r.lock().unwrap()[i] = channel_from_runlength_encoding(&channel_encoding, a, i > 0);
-                }))
+                }));
+                break;
             }else{
                 channel_encoding.push(arith_encoder.message[message_index]);
                 message_index += 1;
@@ -175,19 +176,28 @@ pub fn entropy_decode(arith_encoder : ArithEncoder<JPEGSymbol>, aux_data : Arc<A
         thread.join().unwrap();
     }
 
+
+
+    let mut results = results_vector.lock().unwrap();
+    let y_channel = match results.pop().unwrap(){
+        CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
+        _ => panic!("Wrong run_length decoding result")
+    };
+
+    let cb_channel = match results.pop().unwrap(){
+        CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
+        _ => panic!("Wrong run_length decoding result")
+    };
+
+    let cr_channel = match results.pop().unwrap(){
+        CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
+        _ => panic!("Wrong run_length decoding result")
+    };
+
     let containter = JPEGContainer{
-        y_channel : match results_vector.lock().unwrap().remove(0){
-            CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
-            _ => panic!("Wrong run_length decoding result")
-        },
-        cb_channel : match results_vector.lock().unwrap().remove(0){
-            CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
-            _ => panic!("Wrong run_length decoding result")
-        },
-        cr_channel : match results_vector.lock().unwrap().remove(0){
-            CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(x) => x,
-            _ => panic!("Wrong run_length decoding result")
-        },
+        y_channel,
+        cb_channel,
+        cr_channel,
         Qf : aux_data.Qf,
         original_size : aux_data.original_size,
         sample_type : aux_data.sample_type
@@ -201,7 +211,6 @@ pub fn entropy_decode(arith_encoder : ArithEncoder<JPEGSymbol>, aux_data : Arc<A
 
 pub fn channel_from_runlength_encoding(channel_encoding : &Vec<JPEGSymbol>, aux_data : Arc<AuxiliaryData>, chroma : bool) -> CHANNEL_PROCESSING_RESULT{
     let (height,width) = (8 * (aux_data.original_size.0 as f64 / 8.0).ceil() as usize,8 * (aux_data.original_size.1 as f64 / 8.0).ceil() as usize);
-
     let (subsample_height,subsample_width) = match aux_data.sample_type {
         Down444 => (height,width),
         Down422 => (height,((width / 8) as f64 / 2.0).ceil() as usize * 8),
@@ -218,7 +227,6 @@ pub fn channel_from_runlength_encoding(channel_encoding : &Vec<JPEGSymbol>, aux_
             run_length_decoding_block(&mut result, i * 8, j * 8, &zigzag_sequence, channel_encoding, &mut run_length_index);
         }
     }
-
     return CHANNEL_PROCESSING_RESULT::RUN_LENGTH_DECOMPRESS(result);
 
 

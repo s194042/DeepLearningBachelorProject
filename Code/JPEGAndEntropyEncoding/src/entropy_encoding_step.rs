@@ -28,13 +28,15 @@ pub fn run_length_encoding_block(block : &Vec<Vec<f64>>, row : usize, column : u
 
 pub fn run_length_decoding_block(block : &mut Vec<Vec<f64>>, row : usize, column : usize, zigzag_sequence : &Vec<(usize,usize)>, run_length_encoding : &Vec<JPEGSymbol>, run_length_index : &mut usize){
     let mut zigzag_index = 0;
+
     loop{
         match run_length_encoding[*run_length_index] {
             JPEGSymbol::Zeros(x) => {zigzag_index += x as usize},
-            JPEGSymbol::Symbol(x) => {block[row + zigzag_sequence[zigzag_index].0][column + zigzag_sequence[zigzag_index].1] = x as f64},
-            JPEGSymbol::EOB => return,
+            JPEGSymbol::Symbol(x) => {block[row + zigzag_sequence[zigzag_index].0][column + zigzag_sequence[zigzag_index].1] = x as f64;zigzag_index += 1;},
+            JPEGSymbol::EOB => {*run_length_index += 1; return},
             _ => panic!("run_length decoding found a symbol it should not have")
         }
+        *run_length_index += 1;
     }
 }
 
@@ -123,6 +125,27 @@ mod test{
 
         println!("{:?}",run_length_encoding_block(&test, 0, 0, &generate_zigzag_sequence(8)));
         assert!(false);
+    }
+
+
+    #[test]
+    fn test_run_length_decode(){
+        let target = vec![vec![-26.0, -3.0, -6.0, 2.0, 2.0, -1.0, 0.0, 0.0], 
+                          vec![0.0, -2.0, -4.0, 1.0, 1.0, 0.0, 0.0, 0.0], 
+                          vec![-3.0, 1.0, 5.0, -1.0, -1.0, 0.0, 0.0, 0.0], 
+                          vec![-3.0, 1.0, 2.0, -1.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                          vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]];
+
+        let mut test = vec![vec![0.0;8];8];
+        let mut index = 0;
+        let encoding = run_length_encoding_block(&target, 0, 0, &generate_zigzag_sequence(8));
+        println!("{:?}",encoding);
+        run_length_decoding_block(&mut test, 0, 0, &generate_zigzag_sequence(8), &encoding, &mut index);
+    
+        assert_eq!(test,target);
     }
 
 }

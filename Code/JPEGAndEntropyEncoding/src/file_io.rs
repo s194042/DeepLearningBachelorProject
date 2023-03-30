@@ -1,5 +1,7 @@
 use std::{fs::File,io::prelude::*,env};
 
+use pyo3::buffer;
+
 use crate::{entropy_encoding_step::JPEGSymbol, arithmetic_encoding::ArithEncoder,Sampling};
 
 
@@ -19,7 +21,7 @@ pub struct AuxiliaryData{
 
 pub fn arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>,aux_data : AuxiliaryData , path : &str){
 
-    let buffer = encode_buffer(&arith_encoder.model_to_freq_vec(), &arith_encoder.encoded_message,&aux_data);
+    let buffer = encode_buffer(&arith_encoder.freq_count, &arith_encoder.encoded_message,&aux_data);
     write_to_bin(&buffer, path)
 
 }
@@ -27,7 +29,6 @@ pub fn arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>,aux
 pub fn arithmetic_encoding_from_file(path : &str) -> (AuxiliaryData,ArithEncoder<JPEGSymbol>){
     let mut buffer = load_from_bin(path);
     let (aux_data,freq_vec,encoded_message) = decode_buffer(&mut buffer);
-
     return (aux_data,ArithEncoder::from_encoded_message(freq_vec, encoded_message, JPEGSymbol::EOF));
 }
 
@@ -84,6 +85,7 @@ pub fn encode_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &Vec<u
         }
         push_i32_to_buffer(buffer, *freq);
     }
+    push_to_buffer(buffer, 3, 5);
     for bit in encoded_message{
         push_to_buffer(buffer, 1, *bit);
     }
@@ -112,7 +114,8 @@ pub fn decode_buffer(buffer : &mut BinaryBuffer) -> (AuxiliaryData,Vec<(JPEGSymb
             1 => freq_vec.push((JPEGSymbol::Symbol(read_from_buffer(buffer, 32) as i32),read_from_buffer(buffer, 32) as i32)),
             2 => freq_vec.push((JPEGSymbol::EOB,read_from_buffer(buffer, 32) as i32)),
             3 => freq_vec.push((JPEGSymbol::CHANNEL_MARKER,read_from_buffer(buffer, 32) as i32)),
-            4 => {freq_vec.push((JPEGSymbol::EOF,read_from_buffer(buffer, 32) as i32)); break},
+            4 => freq_vec.push((JPEGSymbol::EOF,read_from_buffer(buffer, 32) as i32)),
+            5 => {break},
             _ => panic!("Unrecognized symbol when decoding buffer"),
         }
     }
@@ -127,7 +130,6 @@ pub fn decode_buffer(buffer : &mut BinaryBuffer) -> (AuxiliaryData,Vec<(JPEGSymb
 
 pub fn read_from_buffer(buffer : &mut BinaryBuffer, count : usize) -> u64{
     let mut result : u64 = 0;
-
     for i in 0..count{
         result <<= 1;
         result += if buffer.buffer[buffer.read_index / 8] & (1 << (7 - (buffer.read_index % 8))) >= 1 {1} else {0};

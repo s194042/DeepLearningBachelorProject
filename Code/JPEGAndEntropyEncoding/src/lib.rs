@@ -8,6 +8,8 @@ mod entropy_encoding_step;
 mod file_io;
 use std::{sync::{Arc,Mutex}};
 
+use crate::entropy_encoding_step::JPEGSymbol;
+
 pub struct JPEGContainer{
     y_channel : Vec<Vec<f64>>,
     cb_channel : Vec<Vec<f64>>,
@@ -37,14 +39,17 @@ pub enum Sampling {
 #[pymodule]
 fn JPEGAndEntropyEncoding(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(JPEGcompress_and_decompress,m)?)?;
+    m.add_function(wrap_pyfunction!(JPEG_compress_to_file,m)?)?;
+    m.add_function(wrap_pyfunction!(JPEG_decompress_from_file,m)?)?;
     Ok(())
 }
 
 #[pyfunction]
-fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64) -> Py<PyAny>{
+fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, sampling : &str) -> Py<PyAny>{
     
-    let dct_image = JPEG_compress_to_blocks(image, Qf);
-    let original_image = JPEG_decompress_from_blocks(dct_image, Qf);
+
+    let dct_image = JPEG_compress_to_blocks(image, Qf, sampling);
+    let original_image = JPEG_decompress_from_blocks(dct_image);
 
     return Python::with_gil(|py| original_image.to_object(py));
 }
@@ -52,32 +57,41 @@ fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64) -> Py<P
 
 
 #[pyfunction]
-fn JPEG_compress_to_file(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, path : &str){
-    let container = JPEG_compress_to_blocks(image, Qf);
+fn JPEG_compress_to_file(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, sampling : &str, path : &str){
+    let container = JPEG_compress_to_blocks(image, Qf, sampling);
     let aux_data = file_io::AuxiliaryData{
         original_size : container.original_size,
         Qf : container.Qf,
         sample_type : container.sample_type,
     };
     let mut arith_encoder = JPEGSteps::entropy_encoding(container);
+    arith_encoder.encode();
+    arith_encoder.decode();
     file_io::arithmetic_encoding_to_file(&arith_encoder, aux_data, path);
 }
 
 #[pyfunction]
-fn JPEG_decompress_from_file(path : &str){
-    let  (aux_data,mut arith_encoder) = file_io::arithmetic_encoding_from_file(path);
-
+fn JPEG_decompress_from_file(path : &str) -> Vec<Vec<Vec<usize>>>{
+    let (aux_data,mut arith_encoder) = file_io::arithmetic_encoding_from_file(path);
+    arith_encoder.decode();
+    let container = JPEGSteps::entropy_decode(arith_encoder, Arc::new(aux_data));
+    return JPEG_decompress_from_blocks(container);
 }
 
-
-fn JPEG_compress_to_blocks(mut image : Vec<Vec<Vec<f64>>>, Qf : f64) -> JPEGContainer{
+fn JPEG_compress_to_blocks(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, sampling : &str) -> JPEGContainer{
+    let sample_type = match sampling{
+        "Down444" => Sampling::Down444,
+        "Down422" => Sampling::Down422,
+        "Down420" => Sampling::Down420,
+        _ => panic!("Not a valid sampling type"),
+    };
     let mut result_vector = Arc::new(Mutex::new(vec![JPEGSteps::CHANNEL_PROCESSING_RESULT::Empty; 3]));
-    let mut downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, Sampling::Down444, Qf);
+    let mut downsampled_image = JPEGSteps::color_transform_and_dowsample_image(image, sample_type, Qf);
     let mut dct_image = JPEGSteps::parallel_function_over_channels(downsampled_image, Arc::new(JPEGSteps::dct_and_quantization_over_channel), result_vector.clone());
     return dct_image;    
 }
 
-fn JPEG_decompress_from_blocks(mut dct_image : JPEGContainer, Qf : f64) -> Vec<Vec<Vec<usize>>>{
+fn JPEG_decompress_from_blocks(mut dct_image : JPEGContainer) -> Vec<Vec<Vec<usize>>>{
     let mut result_vector = Arc::new(Mutex::new(vec![JPEGSteps::CHANNEL_PROCESSING_RESULT::Empty; 3]));
     let mut inverse_dct_image = JPEGSteps::parallel_function_over_channels(dct_image, Arc::new(JPEGSteps::inverse_quantization_and_dct_over_channel), result_vector.clone());
     let mut original_image = JPEGSteps::upsample_and_inverse_color_transform_image(inverse_dct_image);

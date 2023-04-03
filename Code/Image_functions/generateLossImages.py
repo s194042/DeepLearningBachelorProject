@@ -152,16 +152,16 @@ def get_images_with_loss_of_1(img, rand, randn): #11
 def get_image_pairs_transforms_with_loss(path: str='C:/Users/Rani/Desktop/ai_training_immages/_0', start: int = 0, end: int=6.645*50*4*106-1):
     si = 512, 768
     extra = torch.zeros(512, 768, 2, device=torch.device('cuda'))
-    imgs = images.get_all_imgs_with_everything(path, start, end)
+    imgs = images.get_all_images_without_anything(path)
     for img in imgs:
         cat = torch.concatenate((torch.divide(torch.subtract(img, 128), 128), extra), axis=2)
         rand = torch.rand(img.size(), device=torch.device('cuda'))
         randn = torch.randn(img.size(), device=torch.device('cuda'))
-        for i in range(5):
+        for i in range(1):
             for aug_0 in get_images_with_loss_of_0(img, rand, randn):
-                yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.001, device=torch.device('cuda'))
+                yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.0, device=torch.device('cuda'))
             for aug_0 in get_images_with_loss_of_1(img, rand, randn):
-                yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.999, device=torch.device('cuda'))
+                yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(1.0, device=torch.device('cuda'))
             for aug_0 in get_images_with_loss_of_0_2(img, rand, randn):
                 yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.2, device=torch.device('cuda'))
             for aug_0 in get_images_with_loss_of_0_6(img, rand, randn):
@@ -190,7 +190,7 @@ def get_image_pairs_transforms_with_loss(path: str='C:/Users/Rani/Desktop/ai_tra
 
 
 def get_images_with_loss_of_0_0_1(img, rand, randn, idx): #10
-    id = idx%10
+    id = idx%11
     if id == 0:
         return img
     elif id == 1:
@@ -234,7 +234,7 @@ def get_images_with_loss_of_0_1_1(img, rand, randn, idx): #8
     
 
 def get_images_with_loss_of_0_2_1(img, rand, randn, idx): #11
-    id = idx%11
+    id = idx%14
     if id == 0:
         return augmentations.Guasian_noice(img, randn, 0.05)
     elif id == 1:
@@ -251,9 +251,9 @@ def get_images_with_loss_of_0_2_1(img, rand, randn, idx): #11
         return augmentations.uniform_decimal_multiplication(img, 0.88)
     elif id == 7:
         return augmentations.uniform_decimal_multiplication(img, 1.22)
-    elif id == 8:
+    elif id in {8,9}:
         return augmentations.sharpen(img, 1)
-    elif id == 9:
+    elif id in {10,11}:
         return augmentations.box_blur_3x3(img, 1)
     else:
         return augmentations.Gaussioan_blur_3x3(img, 1)
@@ -280,7 +280,7 @@ def get_images_with_loss_of_0_3_1(img, rand, randn, idx): #8
    
     
 def get_images_with_loss_of_0_4_1(img, rand, randn, idx): #12
-    id = idx%12
+    id = idx%14
     if id == 0:
         return augmentations.Guasian_noice(img, randn, 0.15)
     elif id == 1:
@@ -301,7 +301,7 @@ def get_images_with_loss_of_0_4_1(img, rand, randn, idx): #12
         return augmentations.salt(img, rand, 0.01)
     elif id == 9:
         return augmentations.peper(img, rand, 0.01)
-    elif id == 10:
+    elif id in {10,11}:
         return augmentations.box_blur_5x5(img, 1)
     else:
         return augmentations.Gaussioan_blur_5x5(img, 1)
@@ -330,7 +330,7 @@ def get_images_with_loss_of_0_5_1(img, rand, randn, idx): #10
         return augmentations.peper(img, rand, 0.02)
 
 def get_images_with_loss_of_0_6_1(img, rand, randn, idx): #12
-    id = idx%11
+    id = idx%12
     if id == 0:
         return augmentations.Guasian_noice(img, randn, 0.3)
     elif id == 1:
@@ -380,7 +380,7 @@ def get_images_with_loss_of_0_7_1(img, rand, randn, idx): #10
 
     
 def get_images_with_loss_of_0_8_1(img, rand, randn, idx): #14
-    id = idx%11
+    id = idx%12
     if id == 0:
         return augmentations.Guasian_noice(img, randn, 0.6)
     elif id == 1:
@@ -432,7 +432,7 @@ def get_images_with_loss_of_0_9_1(img, rand, randn, idx): #10
     
 
 def get_images_with_loss_of_1_1(img, rand, randn, idx): #11
-    id = idx%10
+    id = idx%11
     if id == 0:
         return augmentations.Guasian_noice(img, randn, 1.2)
     elif id == 1:
@@ -451,7 +451,7 @@ def get_images_with_loss_of_1_1(img, rand, randn, idx): #11
         return augmentations.uniform_decimal_multiplication(img, 5)
     elif id == 8:
         return augmentations.salt(img, rand, 0.5)
-    elif id ==9:
+    elif id == 9:
         return augmentations.peper(img, rand, 0.6)
     else:
         return augmentations.sharpen(img, 4)
@@ -468,34 +468,33 @@ def get_image_pairs_transforms_with_loss2(path: str='C:/Users/Rani/Desktop/ai_tr
     extra = torch.zeros(512, 768, 2, device=torch.device('cuda'))
     imgs = images.get_all_imgs_with_everything(path, start, end)
     
-    for idx, img in enumerate(imgs):
-        idx += epoch
+    for idx, img in enumerate(imgs, start=epoch):
         cat = torch.concatenate((torch.divide(torch.subtract(img, 128), 128), extra), axis=2)
         rand = torch.rand(img.size(), device=torch.device('cuda'))
         randn = torch.randn(img.size(), device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_0_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.001, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_1_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.999, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_2_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.2, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_6_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.6, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_4_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.4, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_8_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.8, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_0_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.0, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_1_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(1.0, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_2_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.2, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_6_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.6, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_4_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.4, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_8_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.8, device=torch.device('cuda'))
         
-        for aug_0 in get_images_with_loss_of_0_1_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.1, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_9_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.9, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_7_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.7, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_3_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.3, device=torch.device('cuda'))
-        for aug_0 in get_images_with_loss_of_0_5_1(img, rand, randn, idx):
-            yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.5, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_1_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.1, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_9_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.9, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_7_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.7, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_3_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.3, device=torch.device('cuda'))
+        aug_0 = get_images_with_loss_of_0_5_1(img, rand, randn, idx)
+        yield torch.concatenate((cat, torch.subtract(img, aug_0)), axis=2).permute(2,0,1), torch.tensor(0.5, device=torch.device('cuda'))
 
 
 
@@ -527,4 +526,4 @@ class MakeIter(torch.utils.data.IterableDataset):
         return self.generator_func.__next__()
     
     def __len__(self):
-        return 6645*50*4*106-1 #-1 just to be safe
+        return 6000*50*4*11# not sure if there are 6000 because of bug in raw loading #645*50*4*106-1 #-1 just to be safe

@@ -71,3 +71,18 @@ def get_all_imgs_with_everything(path_to_images, start = 0, end=6.645*50*4*106-1
     for imgs in get_all_images(path_to_images, start=start):
         for flips in get_all_flips_of_image(imgs):
             yield flips
+
+
+
+def get_all_images_without_anything(path_to_images):
+    i = 0
+    
+    for _, _, pics in os.walk(path_to_images):
+        for pic in pics:
+            try:
+                torch_img = load_nef(path_to_images +'/' + pic)#torch.load(path_to_images +'/' + pic).float()#load_nef(path_to_images +'/' + pic)
+                cut_img = torch_img[:3072, :4608]
+                shrunc_img = cut_img[::6,::6]
+                yield shrunc_img
+            except:
+                print("rawpy problem with picture", pic)

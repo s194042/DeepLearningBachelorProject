@@ -1215,7 +1215,7 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
         self.seperable = seperable
         ##############################################################
         #Same
-        self._0 = Stem(4, slim=slim, seperable=seperable)
+        self._0 = Stem(3, slim=slim, seperable=seperable)
         self._1 = SameA(16, slim=slim, seperable=seperable)
         self._2 = SameA(16, slim=slim, seperable=seperable)
         self._3 = SameA(16, slim=slim, seperable=seperable)
@@ -1268,12 +1268,9 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
         self._40 = DecoderA(32, slim=slim, seperable=seperable)
         self._41 = SameA(16, slim=slim, seperable=seperable)
         self._42 = SameA(16, slim=slim, seperable=seperable)
-        #self._43 = DecoderA(16, slim=slim, seperable=seperable)
-        #self._44 = SameA(8, slim=slim, seperable=seperable)
-        #self._45 = SameA(8, slim=slim, seperable=seperable)
-        self._46 = DeStem(slim=slim, seperable=seperable)
+        self._43 = DeStem(slim=slim, seperable=seperable)
         
-        self.activation = nn.ELU()   
+        self.sigmoid = nn.ELU()   
 
 
         #self.initialize_weights()
@@ -1303,8 +1300,9 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
         x = self._20(x)
         x = self._21(x)
         x = self._22(x)
-
-
+        ############################################################
+        x = torch.add(torch.subtract(torch.rand(x.size(), device="cuda"), 0.5), x)  # torch.rand is uniform [0,1), by subtracting by 0.5 it is betwee, -0.5 and 0.5. Then this noise is added to x
+        ############################################################
         x = self._23(x)
         x = self._24(x)
         x = self._25(x)
@@ -1325,12 +1323,9 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
         x = self._40(x)
         x = self._41(x)
         x = self._42(x)
-        #x = self._43(x)
-        #x = self._44(x)
-        #x = self._45(x)
-        x = self._46(x)
+        x = self._43(x)
 
-        
+        ## might want to change loss function in the end
         
         return x
     

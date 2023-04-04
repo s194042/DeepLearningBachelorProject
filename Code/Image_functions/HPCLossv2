@@ -45,14 +45,12 @@ batch_size= 12
 
 
 model = Lossv2.Loss(seperable=True, slim=True).to(device).to(memory_format=torch.channels_last)
-model = torch.jit.script(model)
 optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
 
 
 
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True
-torch.autograd.detect_anomaly(check_nan=False)
 torch.autograd.set_detect_anomaly(False, check_nan=False)
 torch.autograd.profiler.profile(enabled=False)
 torch.autograd.profiler.emit_nvtx(enabled=False)

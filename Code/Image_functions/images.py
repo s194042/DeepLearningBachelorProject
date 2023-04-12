@@ -74,7 +74,7 @@ def get_all_imgs_with_everything(path_to_images, start = 0, end=6.645*50*4*106-1
 
 
 
-def get_all_images_without_anything(path_to_images):
+def get_all_images_without_anything(path_to_images='C:/Users/Rani/Desktop/ai_training_immages/_0'):
     i = 0
     
     for _, _, pics in os.walk(path_to_images):

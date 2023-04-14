@@ -419,8 +419,8 @@ class DecoderA(nn.Module): # Based on inception v4
         self.A_1x1 = nn.Conv2d(channels,channels//8, kernel_size=1, padding=0, bias=False)
         self.A_upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
-        self.B_4x4 = nn.ConvTranspose2d(channels,channels//4, kernel_size=4, padding=1, stride=2, groups=channels if self.seperable else 1, bias=False)
-        self.B_4x1 = nn.ConvTranspose2d(channels,channels//4, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels if self.seperable else 1, bias=False)
+        self.B_4x4 = nn.ConvTranspose2d(channels,channels//4, kernel_size=4, padding=1, stride=2, groups=channels//4 if self.seperable else 1, bias=False)
+        self.B_4x1 = nn.ConvTranspose2d(channels,channels//4, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels//4 if self.seperable else 1, bias=False)
         self.B_1x4 = nn.ConvTranspose2d(channels//4,channels//4, kernel_size=(1,4), padding=(0,1), stride=(1,2), groups=channels//4 if self.seperable else 1, bias=False)
         self.B_1x1 = nn.Conv2d(channels//4,channels//4, kernel_size=1, padding=0, bias=False)
 
@@ -431,8 +431,8 @@ class DecoderA(nn.Module): # Based on inception v4
         self.C_1x1_2 = nn.Conv2d(channels//8,channels//8, kernel_size=1, padding=0, bias=False)
 
 
-        self.skip = nn.ConvTranspose2d(channels,channels//2, kernel_size=4, padding=1, stride=2, groups=channels if self.seperable else 1, bias=False)
-        self.skip_slim_4x1 = nn.ConvTranspose2d(channels,channels//2, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels if self.seperable else 1, bias=False)
+        self.skip = nn.ConvTranspose2d(channels,channels//2, kernel_size=4, padding=1, stride=2, groups=channels//2 if self.seperable else 1, bias=False)
+        self.skip_slim_4x1 = nn.ConvTranspose2d(channels,channels//2, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels//2 if self.seperable else 1, bias=False)
         self.skip_slim_1x4 = nn.ConvTranspose2d(channels//2,channels//2, kernel_size=(1,4), padding=(0,1), stride=(1,2), groups=channels//2 if self.seperable else 1, bias=False)
         self.skip_1x1 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0, bias=False)
 
@@ -657,8 +657,8 @@ class DecoderB(nn.Module): # Based on inception v4
         self.A_1x1 = nn.Conv2d(channels,channels//8, kernel_size=1, padding=0, bias=False)
         self.A_upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
-        self.B_4x4 = nn.ConvTranspose2d(channels,channels//4, kernel_size=4, padding=1, stride=2, groups=channels if self.seperable else 1, bias=False)
-        self.B_4x1 = nn.ConvTranspose2d(channels,channels//4, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels if self.seperable else 1, bias=False)
+        self.B_4x4 = nn.ConvTranspose2d(channels,channels//4, kernel_size=4, padding=1, stride=2, groups=channels//4 if self.seperable else 1, bias=False)
+        self.B_4x1 = nn.ConvTranspose2d(channels,channels//4, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels//4 if self.seperable else 1, bias=False)
         self.B_1x4 = nn.ConvTranspose2d(channels//4,channels//4, kernel_size=(1,4), padding=(0,1), stride=(1,2), groups=channels//4 if self.seperable else 1, bias=False)
         self.B_1x1 = nn.Conv2d(channels//4,channels//4, kernel_size=1, padding=0, bias=False)
 
@@ -669,8 +669,8 @@ class DecoderB(nn.Module): # Based on inception v4
         self.C_1x1_2 = nn.Conv2d(channels//8,channels//8, kernel_size=1, padding=0, bias=False)
 
 
-        self.skip = nn.ConvTranspose2d(channels,channels//2, kernel_size=4, padding=1, stride=2, groups=channels if self.seperable else 1, bias=False)
-        self.skip_slim_4x1 = nn.ConvTranspose2d(channels,channels//2, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels if self.seperable else 1, bias=False)
+        self.skip = nn.ConvTranspose2d(channels,channels//2, kernel_size=4, padding=1, stride=2, groups=channels//2 if self.seperable else 1, bias=False)
+        self.skip_slim_4x1 = nn.ConvTranspose2d(channels,channels//2, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels//2 if self.seperable else 1, bias=False)
         self.skip_slim_1x4 = nn.ConvTranspose2d(channels//2,channels//2, kernel_size=(1,4), padding=(0,1), stride=(1,2), groups=channels//2 if self.seperable else 1, bias=False)
         self.skip_1x1 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0, bias=False)
 
@@ -950,8 +950,8 @@ class DecoderC(nn.Module): # Based on inception v4
         self.C_1x1_3 = nn.Conv2d(channels//8,channels//8, kernel_size=1, padding=0, bias=False)
 
 
-        self.skip = nn.ConvTranspose2d(channels,channels//2, kernel_size=4, padding=1, stride=2, groups=channels if self.seperable else 1, bias=False)
-        self.skip_slim_4x1 = nn.ConvTranspose2d(channels,channels//2, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels if self.seperable else 1, bias=False)
+        self.skip = nn.ConvTranspose2d(channels,channels//2, kernel_size=4, padding=1, stride=2, groups=channels//2 if self.seperable else 1, bias=False)
+        self.skip_slim_4x1 = nn.ConvTranspose2d(channels,channels//2, kernel_size=(4,1), padding=(1,0), stride=(2,1), groups=channels//2 if self.seperable else 1, bias=False)
         self.skip_slim_1x4 = nn.ConvTranspose2d(channels//2,channels//2, kernel_size=(1,4), padding=(0,1), stride=(1,2), groups=channels//2 if self.seperable else 1, bias=False)
         self.skip_1x1 = nn.Conv2d(channels//2,channels//2, kernel_size=1, padding=0, bias=False)
 
@@ -1242,11 +1242,11 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
         self._19 = EncoderC(256, slim=slim, seperable=seperable)
         self._20 = SameC(512, slim=slim, seperable=seperable)
         self._21 = SameC(512, slim=slim, seperable=seperable)
-        self._22 = ChannelReduce(512, slim=slim, seperable=seperable)
+        #self._22 = ChannelReduce(512, slim=slim, seperable=seperable)
         
         ###############################################################
         #Decoder
-        self._23 = ChannelIncreace(256, slim=slim, seperable=seperable)
+        #self._23 = ChannelIncreace(256, slim=slim, seperable=seperable)
         self._24 = SameC(512, slim=slim, seperable=seperable)
         self._25 = SameC(512, slim=slim, seperable=seperable)
         self._26 = DecoderC(512, slim=slim, seperable=seperable)
@@ -1299,11 +1299,11 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
         x = self._19(x) 
         x = self._20(x)
         x = self._21(x)
-        x = self._22(x)
+        #x = self._22(x)
         ############################################################
         x = torch.add(torch.subtract(torch.rand(x.size(), device="cuda"), 0.5), x)  # torch.rand is uniform [0,1), by subtracting by 0.5 it is betwee, -0.5 and 0.5. Then this noise is added to x
         ############################################################
-        x = self._23(x)
+        #x = self._23(x)
         x = self._24(x)
         x = self._25(x)
         x = self._26(x)
@@ -1318,6 +1318,167 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
         x = self._35(x)
         x = self._36(x)
         x = self._37(x)
+        x = self._38(x)
+        x = self._39(x) 
+        x = self._40(x)
+        x = self._41(x)
+        x = self._42(x)
+        x = self._43(x)
+
+        ## might want to change loss function in the end
+        
+        return x
+    
+    def initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                nn.init.kaiming_uniform(m.weight)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Compress2(nn.Module): #depthwise Seperable Conv with down sampling
+    def __init__(self,
+        slim: bool = False,
+        seperable: bool = False):
+        super(Compress, self).__init__()
+        self.slim = slim
+        self.seperable = seperable
+        ##############################################################
+        #Same
+        self._0 = Stem(3, slim=slim, seperable=seperable)
+        self._1 = SameA(16, slim=slim, seperable=seperable)
+        self._2 = SameA(16, slim=slim, seperable=seperable)
+        self._3 = SameA(16, slim=slim, seperable=seperable)
+        #self._4 = SameA(16, slim=slim, seperable=seperable)
+        #self._5 = SameA(16, slim=slim, seperable=seperable)
+        #self._6 = SameA(16, slim=slim, seperable=seperable)
+        self._5 = EncoderA(16, slim=slim, seperable=seperable)
+        #self._6 = SameA(32, slim=slim, seperable=seperable)
+        #self._7 = SameA(32, slim=slim, seperable=seperable)
+        self._8 = SameA(32, slim=slim, seperable=seperable)
+        self._9 = SameA(32, slim=slim, seperable=seperable)
+        self._10 = EncoderA(32, slim=slim, seperable=seperable)
+
+
+        self._11 = SameB(64, slim=slim, seperable=seperable)
+        self._12 = SameB(64, slim=slim, seperable=seperable)
+        self._13 = EncoderB(64, slim=slim, seperable=seperable)
+        self._14 = SameB(128, slim=slim, seperable=seperable)
+        self._15 = SameB(128, slim=slim, seperable=seperable)
+        self._16 = EncoderB(128, slim=slim, seperable=seperable)
+
+        self._17 = SameC(256, slim=slim, seperable=seperable)
+        self._18 = SameC(256, slim=slim, seperable=seperable)
+        self._19 = EncoderC(256, slim=slim, seperable=seperable)
+        #self._20 = SameC(512, slim=slim, seperable=seperable)
+        #self._21 = SameC(512, slim=slim, seperable=seperable)
+        #self._22 = ChannelReduce(512, slim=slim, seperable=seperable)
+        
+        ###############################################################
+        #Decoder
+        #self._23 = ChannelIncreace(256, slim=slim, seperable=seperable)
+        self._24 = SameC(512, slim=slim, seperable=seperable)
+        self._25 = SameC(512, slim=slim, seperable=seperable)
+        self._26 = DecoderC(512, slim=slim, seperable=seperable)
+        self._27 = SameC(256, slim=slim, seperable=seperable)
+        self._28 = SameC(256, slim=slim, seperable=seperable)
+        
+        self._29 = DecoderB(256, slim=slim, seperable=seperable)
+        self._30 = SameB(128, slim=slim, seperable=seperable)
+        self._31 = SameB(128, slim=slim, seperable=seperable)
+        self._32 = DecoderB(128, slim=slim, seperable=seperable)
+        self._33 = SameB(64, slim=slim, seperable=seperable)
+        self._34 = SameB(64, slim=slim, seperable=seperable)
+
+        self._35 = DecoderA(64, slim=slim, seperable=seperable)
+        #self._36 = SameA(32, slim=slim, seperable=seperable)
+        #self._37 = SameA(32, slim=slim, seperable=seperable)
+        self._38 = SameA(32, slim=slim, seperable=seperable)
+        self._39 = SameA(32, slim=slim, seperable=seperable)
+        self._40 = DecoderA(32, slim=slim, seperable=seperable)
+        self._41 = SameA(16, slim=slim, seperable=seperable)
+        self._42 = SameA(16, slim=slim, seperable=seperable)
+        self._43 = DeStem(slim=slim, seperable=seperable)
+        
+        self.sigmoid = nn.ELU()   
+
+
+        #self.initialize_weights()
+        
+
+    def forward(self, x):
+        x = self._0(x)
+        x = self._1(x)
+        x = self._2(x)
+        x = self._3(x)
+        #x = self._4(x)
+        x = self._5(x)
+        #x = self._6(x)
+        #x = self._7(x)
+        x = self._8(x)
+        x = self._9(x)
+        x = self._10(x)
+        x = self._11(x)
+        x = self._12(x)
+        x = self._13(x)
+        x = self._14(x)
+        x = self._15(x)
+        x = self._16(x)
+        x = self._17(x)
+        x = self._18(x)
+        x = self._19(x) 
+        #x = self._20(x)
+        #x = self._21(x)
+        #x = self._22(x)
+        ############################################################
+        x = torch.add(torch.subtract(torch.rand(x.size(), device="cuda"), 0.5), x)  # torch.rand is uniform [0,1), by subtracting by 0.5 it is betwee, -0.5 and 0.5. Then this noise is added to x
+        ############################################################
+        #x = self._23(x)
+        x = self._24(x)
+        x = self._25(x)
+        x = self._26(x)
+        x = self._27(x)
+        x = self._28(x)
+        x = self._29(x)
+        x = self._30(x)
+        x = self._31(x)
+        x = self._32(x)
+        x = self._33(x)
+        x = self._34(x)
+        x = self._35(x)
+        #x = self._36(x)
+        #x = self._37(x)
         x = self._38(x)
         x = self._39(x) 
         x = self._40(x)

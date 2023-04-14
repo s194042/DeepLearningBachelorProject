@@ -5,7 +5,7 @@ import numpy as np
 torch.manual_seed(100)
 np.random.seed(100)
 import compress_entropy
-import generateLossImages
+import generateCompressionImages
 from torch.cuda.amp import autocast
 from torch.cuda.amp import GradScaler
 
@@ -63,14 +63,14 @@ scaler = GradScaler()
 los = [0]*10
 for epoch in range(start_epoch, epochs):
     if startup:
-        training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
-        training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
+        training = generateCompressionImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
+        training_loader = torch.utils.data.DataLoader(training, batch_size=4, num_workers=2)
         min_lr *= batch_size**0.5
         max_lr *= batch_size**0.5
         step_size = (max_lr-min_lr)/steps
         optimizer.param_groups[-1]['lr'] = max_lr
     else:
-        training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
+        training = generateCompressionImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
         training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
 
 

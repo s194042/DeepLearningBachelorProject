@@ -39,7 +39,7 @@ start_epoch = 0
 start_index = 0
 momentum = 0.94
 step_size = (max_lr-min_lr)/steps
-path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_Functions/IMAGE_NEF/"
+path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/IMAGE_NEF/"
 folder = "IMAGES_"
 
 printing = True

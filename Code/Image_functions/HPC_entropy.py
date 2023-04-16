@@ -77,6 +77,7 @@ for epoch in range(start_epoch, epochs):
 
 
     for index, data in enumerate(training_loader):
+        print(index)
         inputs, labels = data
         labels = torch.unsqueeze(labels, dim=-1)
         inputs.to(memory_format=torch.channels_last)
@@ -94,7 +95,6 @@ for epoch in range(start_epoch, epochs):
             scaler.step(optimizer)#optimizer.step()
             scaler.update()
             optimizer.zero_grad(set_to_none=True)
-            print(loss)
         else:
             scaler.step(optimizer)#optimizer.step()
             scaler.update()

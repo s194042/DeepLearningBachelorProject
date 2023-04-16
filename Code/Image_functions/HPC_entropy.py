@@ -75,6 +75,7 @@ for epoch in range(start_epoch, epochs):
         training = generateCompressionImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
         training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
 
+    print(epoch)
 
     for index, data in enumerate(training_loader):
         print(index)

@@ -85,5 +85,6 @@ def get_all_images_without_anything(path_to_images='C:/Users/Rani/Desktop/ai_tra
                 cut_img = torch_img[:3072, :4608]
                 shrunc_img = cut_img[::6,::6]
                 yield shrunc_img
-            except:
+            except Exception as e:
                 print("rawpy problem with picture", pic)
+                print(e)

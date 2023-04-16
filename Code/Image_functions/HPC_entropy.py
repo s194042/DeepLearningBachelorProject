@@ -81,7 +81,7 @@ for epoch in range(start_epoch, epochs):
     for index, data in enumerate(training_loader):
         print(index)
         inputs, labels = data
-        labels = torch.unsqueeze(labels, dim=-1)
+        #labels = torch.unsqueeze(labels, dim=-1)
         inputs.to(memory_format=torch.channels_last)
         labels.to(memory_format=torch.channels_last)
 

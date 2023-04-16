@@ -34,7 +34,7 @@ class MakeIter(torch.utils.data.IterableDataset):
 
     def __iter__(self):
         worker_info = torch.utils.data.get_worker_info()
-        if worker_info == None or worker_info.num_workers == 1:
+        if worker_info == None or worker_info.num_workers == 1 or worker_info.num_workers == 0:
             folder = self.folder
         elif worker_info.num_workers == 2:
             folder = self.folder + str(worker_info.id + 1)

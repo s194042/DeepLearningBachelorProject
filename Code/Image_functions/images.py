@@ -55,8 +55,9 @@ def get_all_images(path_to_images, width=512, height=768, start = 0):
                 torch_img = load_nef(path_to_images +'/' + pic)#torch.load(path_to_images +'/' + pic).float()#load_nef(path_to_images +'/' + pic)
                 for img in get_all_splits(torch_img):
                     yield img
-            except:
+            except Exception as e:
                 print("rawpy problem with picture", pic)
+                print(e)
 
 
 def get_all_flips_of_image(image):

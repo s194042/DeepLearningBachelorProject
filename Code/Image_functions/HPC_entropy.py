@@ -39,10 +39,12 @@ start_epoch = 0
 start_index = 0
 momentum = 0.94
 step_size = (max_lr-min_lr)/steps
+path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_Functions/IMAGE_NEF/"
+folder = "IMAGES_"
 
 printing = True
 epochs = 100
-batch_size= 6
+batch_size = 6
 
 
 model = compress_entropy.Compress().to(device).to(memory_format=torch.channels_last)
@@ -63,14 +65,14 @@ scaler = GradScaler()
 los = [0]*10
 for epoch in range(start_epoch, epochs):
     if startup:
-        training = generateCompressionImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
+        training = generateCompressionImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, startup = True)
         training_loader = torch.utils.data.DataLoader(training, batch_size=4, num_workers=2)
         min_lr *= batch_size**0.5
         max_lr *= batch_size**0.5
         step_size = (max_lr-min_lr)/steps
         optimizer.param_groups[-1]['lr'] = max_lr
     else:
-        training = generateCompressionImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
+        training = generateCompressionImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
         training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
 
 

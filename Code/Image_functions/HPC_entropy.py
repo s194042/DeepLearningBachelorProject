@@ -94,6 +94,7 @@ for epoch in range(start_epoch, epochs):
             scaler.step(optimizer)#optimizer.step()
             scaler.update()
             optimizer.zero_grad(set_to_none=True)
+            print(loss)
         else:
             scaler.step(optimizer)#optimizer.step()
             scaler.update()

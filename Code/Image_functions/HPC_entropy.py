@@ -66,14 +66,14 @@ los = [0]*10
 for epoch in range(start_epoch, epochs):
     if startup:
         training = generateCompressionImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, startup = True)
-        training_loader = torch.utils.data.DataLoader(training, batch_size=4, num_workers=1)
+        training_loader = torch.utils.data.DataLoader(training, batch_size=4)
         min_lr *= batch_size**0.5
         max_lr *= batch_size**0.5
         step_size = (max_lr-min_lr)/steps
         optimizer.param_groups[-1]['lr'] = max_lr
     else:
         training = generateCompressionImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
-        training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=1)
+        training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size)
 
 
     for index, data in enumerate(training_loader):

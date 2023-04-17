@@ -8,7 +8,6 @@ import compress_entropy
 import generateCompressionImages
 from torch.cuda.amp import autocast
 from torch.cuda.amp import GradScaler
-torch.multiprocessing.set_start_method('spawn')
 
 global counter 
 counter = 0

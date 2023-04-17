@@ -77,6 +77,7 @@ for epoch in range(start_epoch, epochs):
 
 
     for index, data in enumerate(training_loader):
+        print(index)
         inputs, labels = data
         #labels = torch.unsqueeze(labels, dim=-1)
         inputs.to(memory_format=torch.channels_last)
@@ -85,6 +86,7 @@ for epoch in range(start_epoch, epochs):
         with autocast():
             outputs = model(inputs)            
             loss = loss_fn(outputs, labels)
+            print(loss)
 
         scaler.scale(loss).backward()#loss.backward()
 

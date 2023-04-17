@@ -2,6 +2,8 @@ import shutil
 import torch
 import torch.nn as nn
 import numpy as np
+import sys
+import os 
 torch.manual_seed(100)
 np.random.seed(100)
 import compress_entropy
@@ -28,6 +30,8 @@ def save_ckp(state, is_best, checkpoint_dir="./entropy_models/rest/", best_model
 #    return model, optimizer, checkpoint['epoch'], checkpoint['index'], checkpoint['min_lr'], checkpoint['max_lr'], checkpoint['steps'], checkpoint['step_size'], checkpoint['falling'], checkpoint['startup']
 
 
+run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
+
 loss_fn = nn.L1Loss(reduction='mean')  
 startup = True
 min_lr = 0.002
@@ -41,6 +45,11 @@ momentum = 0.94
 step_size = (max_lr-min_lr)/steps
 path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/IMAGE_NEF/"
 folder = "IMAGES_1"
+
+checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints"
+best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "Best"
+os.mkdir(checkpoint_dir)
+os.mkdir(best_dir)
 
 printing = True
 epochs = 100
@@ -77,7 +86,6 @@ for epoch in range(start_epoch, epochs):
 
 
     for index, data in enumerate(training_loader):
-        print(index)
         inputs, labels = data
         #labels = torch.unsqueeze(labels, dim=-1)
         inputs.to(memory_format=torch.channels_last)
@@ -86,7 +94,6 @@ for epoch in range(start_epoch, epochs):
         with autocast():
             outputs = model(inputs)            
             loss = loss_fn(outputs, labels)
-            print(loss)
 
         scaler.scale(loss).backward()#loss.backward()
 
@@ -119,7 +126,7 @@ for epoch in range(start_epoch, epochs):
                     print("Max lr")
                     print(max_lr)
                 checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict(), 'startup': startup}
-                save_ckp(checkpoint, True)
+                save_ckp(checkpoint, True, checkpoint_dir=checkpoint_dir,best_model_dir=best_dir)
                 
                 if startup and sum(los)/10 < 0.20 and max(los) < 0.25:
                     startup = False

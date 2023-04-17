@@ -45,11 +45,13 @@ momentum = 0.94
 step_size = (max_lr-min_lr)/steps
 path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/IMAGE_NEF/"
 folder = "IMAGES_1"
-
-output_files_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name
+try:
+    output_files_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name
+except:
+    print("Reusing preexisting folder for run: " + run_name)
 
 checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints"
-best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "Best"
+best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Best"
 os.mkdir(output_files_dir)
 os.mkdir(checkpoint_dir)
 os.mkdir(best_dir)

@@ -131,7 +131,7 @@ for epoch in range(start_epoch, epochs):
                     print("Max lr")
                     print(max_lr)
                 checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict(), 'startup': startup}
-                save_ckp(checkpoint, True, checkpoint_dir=checkpoint_dir,best_model_dir=best_dir)
+                save_ckp(checkpoint, True, checkpoint_dir=checkpoint_dir + "/",best_model_dir=best_dir+ "/")
                 
                 if startup and sum(los)/10 < 0.20 and max(los) < 0.25:
                     startup = False

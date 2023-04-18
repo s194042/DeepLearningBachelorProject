@@ -1,2 +1,4 @@
 ./**.NEF
-./Code/Image_functions/IMAGE_NEF
+/Code/Image_functions/IMAGE_NEF/
+/Code/Image_functions/defualt/
+/Code/Image_functions/FirstRun/

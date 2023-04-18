@@ -50,8 +50,8 @@ try:
 except:
     print("Reusing preexisting folder for run: " + run_name)
 
-checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints"
-best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Best"
+checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints/"
+best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Best/"
 os.mkdir(output_files_dir)
 os.mkdir(checkpoint_dir)
 os.mkdir(best_dir)
@@ -131,7 +131,7 @@ for epoch in range(start_epoch, epochs):
                     print("Max lr")
                     print(max_lr)
                 checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict(), 'startup': startup}
-                save_ckp(checkpoint, True, checkpoint_dir=checkpoint_dir + "/",best_model_dir=best_dir+ "/")
+                save_ckp(checkpoint, True, checkpoint_dir=checkpoint_dir + run_name + "_",best_model_dir=best_dir + run_name + "_")
                 
                 if startup and sum(los)/10 < 0.20 and max(los) < 0.25:
                     startup = False

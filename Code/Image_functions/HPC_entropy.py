@@ -32,7 +32,7 @@ def save_ckp(state, is_best, checkpoint_dir="./entropy_models/rest/", best_model
 
 run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
 
-loss_fn = nn.L1Loss(reduction='mean')  
+loss_fn = nn.L1Loss(reduction='mean') if len(sys.argv) < 3 or sys.argv[2] == "L1" else nn.MSELoss() 
 startup = True
 min_lr = 0.002
 max_lr = 0.008
@@ -45,20 +45,24 @@ momentum = 0.94
 step_size = (max_lr-min_lr)/steps
 path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/IMAGE_NEF/"
 folder = "IMAGES_1"
+output_files_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name
+checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints/"
+best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Best/"
 try:
-    output_files_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name
+    os.mkdir(output_files_dir)
+    os.mkdir(checkpoint_dir)
+    os.mkdir(best_dir)
+    f = open("/work3/s194042/DeepLearningBachelorProject/.gitignore","a")
+    f.write("\n/Code/Image_functions/" + run_name +"/")
+    f.close()
 except:
     print("Reusing preexisting folder for run: " + run_name)
 
-checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints/"
-best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Best/"
-os.mkdir(output_files_dir)
-os.mkdir(checkpoint_dir)
-os.mkdir(best_dir)
 
-printing = True
+
+printing = False
 epochs = 100
-batch_size = 6
+batch_size = 20
 
 
 model = compress_entropy.Compress().to(device).to(memory_format=torch.channels_last)

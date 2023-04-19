@@ -4,6 +4,8 @@ import torch.nn as nn
 import numpy as np
 torch.manual_seed(100)
 np.random.seed(100)
+import os
+import sys
 import Lossv2
 import generateLossImages
 from torch.cuda.amp import autocast
@@ -28,6 +30,9 @@ def save_ckp(state, is_best, checkpoint_dir="./models/rest/", best_model_dir="./
 #    return model, optimizer, checkpoint['epoch'], checkpoint['index'], checkpoint['min_lr'], checkpoint['max_lr'], checkpoint['steps'], checkpoint['step_size'], checkpoint['falling'], checkpoint['startup']
 
 
+run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
+
+
 loss_fn = nn.L1Loss(reduction='sum')  
 startup = True
 min_lr = 0.001
@@ -39,10 +44,27 @@ start_epoch = 0
 start_index = 0
 momentum = 0.94
 step_size = (max_lr-min_lr)/steps
+path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/IMAGE_NEF/"
+folder = "IMAGES_1"
+output_files_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name
+checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints/"
+best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Best/"
+try:
+    os.mkdir(output_files_dir)
+    os.mkdir(checkpoint_dir)
+    os.mkdir(best_dir)
+    f = open("/work3/s194042/DeepLearningBachelorProject/.gitignore","a")
+    f.write("\n/Code/Image_functions/" + run_name +"/")
+    f.close()
+except:
+    print("Reusing preexisting folder for run: " + run_name)
+
+
+
 
 printing = True
 epochs = 100
-batch_size= 12
+batch_size = 40
 
 
 model = Lossv2.Loss(seperable=True, slim=True).to(device).to(memory_format=torch.channels_last)
@@ -62,7 +84,7 @@ torch.set_grad_enabled(True)
 scaler = GradScaler()
 for epoch in range(start_epoch, epochs):
     if startup:
-        training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
+        training = generateLossImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, startup = True)
         training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
         min_lr /= batch_size**0.5
         max_lr /= batch_size**0.5
@@ -70,7 +92,7 @@ for epoch in range(start_epoch, epochs):
         optimizer.param_groups[-1]['lr'] = max_lr
         los = [0]*(112//batch_size)
     else:
-        training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
+        training = generateLossImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
         training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
 
 
@@ -112,7 +134,7 @@ for epoch in range(start_epoch, epochs):
                     print("Max lr")
                     print(max_lr)
                 checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict(), 'startup': startup}
-                save_ckp(checkpoint, True)
+                save_ckp(checkpoint, True, checkpoint_dir = checkpoint_dir + run_name + "_", best_model_dir = best_dir + run_name + "_")
                 
                 if startup and sum(los)/(112//batch_size) < 0.05 and max(los) < 0.1:
                     startup = False

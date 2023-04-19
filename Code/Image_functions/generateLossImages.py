@@ -501,27 +501,27 @@ def get_image_pairs_transforms_with_loss2(path: str='C:/Users/Rani/Desktop/ai_tr
 
 class MakeIter(torch.utils.data.IterableDataset):
     #@torch.jit.script
-    def __init__(self, start_index: int = 0, folder: str ="_0", epoch:int = 0, startup=False, **kwargs):
+    def __init__(self, path = 'C:/Users/Rani/Desktop/ai_training_immages/', start_index: int = 0, folder: str ="_0", epoch:int = 0, startup=False, **kwargs):
         super(MakeIter).__init__()
         self.start_index = start_index
         self.kwargs = kwargs
         self.folder = folder
         self.epoch = epoch
         self.startup = startup
+        self.path = path
 
     def __iter__(self):
         worker_info = torch.utils.data.get_worker_info()
-        if worker_info == None or worker_info.num_workers == 1:
-            self.folder = "_0"#"1_pt"#"_0"
+        if worker_info == None or worker_info.num_workers == 1 or worker_info.num_workers == 0:
+            folder = self.folder
         elif worker_info.num_workers == 2:
-            self.folder = "_" + str(worker_info.id + 1) + "_" + str(worker_info.id + 1)
+            folder = self.folder + str(worker_info.id + 1)
         else:
-            self.folder = "_" + str(worker_info.id + 1)
+            folder = self.folder + str(worker_info.id + 1)
         if self.startup:
-            return iter(get_image_pairs_transforms_with_loss(path = 'C:/Users/Rani/Desktop/ai_training_immages/' + self.folder))
+            return iter(get_image_pairs_transforms_with_loss(path = self.path + folder))
         else:
-            return iter(get_image_pairs_transforms_with_loss2(path = 'C:/Users/Rani/Desktop/ai_training_immages/' + self.folder, epoch=self.epoch))
-    
+            return iter(get_image_pairs_transforms_with_loss2(path = self.path + folder, epoch=self.epoch))
     def __getitem__(self, index:int):
         return self.generator_func.__next__()
     

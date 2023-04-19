@@ -85,7 +85,7 @@ scaler = GradScaler()
 for epoch in range(start_epoch, epochs):
     if startup:
         training = generateLossImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, startup = True)
-        training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
+        training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size)
         min_lr /= batch_size**0.5
         max_lr /= batch_size**0.5
         step_size = (max_lr-min_lr)/steps
@@ -93,7 +93,7 @@ for epoch in range(start_epoch, epochs):
         los = [0]*(112//batch_size)
     else:
         training = generateLossImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
-        training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size, num_workers=2)
+        training_loader = torch.utils.data.DataLoader(training, batch_size=batch_size)
 
 
     for index, data in enumerate(training_loader):

@@ -41,8 +41,17 @@ fn JPEGAndEntropyEncoding(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(JPEGcompress_and_decompress,m)?)?;
     m.add_function(wrap_pyfunction!(JPEG_compress_to_file,m)?)?;
     m.add_function(wrap_pyfunction!(JPEG_decompress_from_file,m)?)?;
+    m.add_function(wrap_pyfunction!(arith_encode_latent_layer,m)?)?;
     Ok(())
 }
+
+/* 
+#[pymodule]
+fn LatentLayerEncoding(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(arith_encode_latent_layer,m)?)?;
+    Ok(())
+}*/
+
 
 #[pyfunction]
 fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, sampling : &str) -> Py<PyAny>{
@@ -54,6 +63,15 @@ fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, samplin
     return Python::with_gil(|py| original_image.to_object(py));
 }
 
+
+#[pyfunction]
+fn arith_encode_latent_layer(mut latent_layer : Vec<isize>, path : &str) -> Py<PyAny>{
+    let eof : isize = 2isize.pow(20);
+    let mut arith_encoder = arithmetic_encoding::ArithEncoder::new(latent_layer,eof);
+    arith_encoder.encode();
+    return Python::with_gil(|py| arith_encoder.encoded_message.to_object(py));
+
+}
 
 
 #[pyfunction]

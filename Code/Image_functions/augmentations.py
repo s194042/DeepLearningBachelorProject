@@ -1,6 +1,5 @@
 #from . import images
 import numpy as np
-import cupy as cp
 import copy
 import torch
 

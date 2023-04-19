@@ -664,7 +664,7 @@ class Loss(nn.Module): #depthwise Seperable Conv with down sampling
 
         self._19 = InceptionB(2048, slim=slim, seperable=seperable)
 
-        self.pool = nn.AvgPool2d(kernel_size=(6,4))
+        self.pool = nn.AvgPool2d(kernel_size=(4,6))
 
         self.activation = nn.ELU()   
 

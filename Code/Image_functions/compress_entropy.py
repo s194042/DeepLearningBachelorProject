@@ -1335,6 +1335,61 @@ class Compress(nn.Module): #depthwise Seperable Conv with down sampling
                 nn.init.kaiming_uniform(m.weight)
 
 
+    def encode(self, x):
+        x = self._0(x)
+        x = self._1(x)
+        x = self._2(x)
+        x = self._3(x)
+        x = self._4(x)
+        x = self._5(x)
+        x = self._6(x)
+        x = self._7(x)
+        x = self._8(x)
+        x = self._9(x)
+        x = self._10(x)
+        x = self._11(x)
+        x = self._12(x)
+        x = self._13(x)
+        x = self._14(x)
+        x = self._15(x)
+        x = self._16(x)
+        x = self._17(x)
+        x = self._18(x)
+        x = self._19(x) 
+        x = self._20(x)
+        x = self._21(x)
+
+        x = torch.round(x).type(torch.int).detach().cpu().numpy()
+        return x
+
+
+    def decode(self, x):
+        x = self._24(x)
+        x = self._25(x)
+        x = self._26(x)
+        x = self._27(x)
+        x = self._28(x)
+        x = self._29(x)
+        x = self._30(x)
+        x = self._31(x)
+        x = self._32(x)
+        x = self._33(x)
+        x = self._34(x)
+        x = self._35(x)
+        x = self._36(x)
+        x = self._37(x)
+        x = self._38(x)
+        x = self._39(x) 
+        x = self._40(x)
+        x = self._41(x)
+        x = self._42(x)
+        x = self._43(x)
+
+        return x
+
+
+
+
 
 
 

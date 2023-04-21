@@ -71,7 +71,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
 
 if load:
     model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,_ = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/CE_L1/Checkpoints/CE_L1_44_checkpoint.pt")
-
+    print("Succesfully loaded model")
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.autograd.set_detect_anomaly(False, check_nan=False)

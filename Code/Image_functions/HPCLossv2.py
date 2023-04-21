@@ -23,11 +23,11 @@ def save_ckp(state, is_best, checkpoint_dir="./models/rest/", best_model_dir="./
         best_fpath = best_model_dir + 'best_model.pt'
         shutil.copyfile(f_path, best_fpath)
 
-#def load_ckp(model, optimizer, checkpoint_fpath="./models/rest/15_checkpoint.pt"):
-#    checkpoint = torch.load(checkpoint_fpath)
-#    model.load_state_dict(checkpoint['state_dict'])
-#    optimizer.load_state_dict(checkpoint['optimizer'])
-#    return model, optimizer, checkpoint['epoch'], checkpoint['index'], checkpoint['min_lr'], checkpoint['max_lr'], checkpoint['steps'], checkpoint['step_size'], checkpoint['falling'], checkpoint['startup']
+def load_ckp(model, optimizer, checkpoint_fpath="./models/rest/15_checkpoint.pt"):
+    checkpoint = torch.load(checkpoint_fpath)
+    model.load_state_dict(checkpoint['state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer'])
+    return model, optimizer, checkpoint['epoch'], checkpoint['index'], checkpoint['min_lr'], checkpoint['max_lr'], checkpoint['steps'], checkpoint['step_size'], checkpoint['falling'], checkpoint['startup']
 
 
 run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
@@ -65,12 +65,15 @@ except:
 printing = True
 epochs = 100
 batch_size = 40
+load = True
 
 
 model = Lossv2.Loss(seperable=True, slim=True).to(device).to(memory_format=torch.channels_last)
 optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
 
-
+if load:
+    model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,_ = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/LossFirstRun/Checkpoints/LossFirstRun_3_checkpoint.pt")
+    print("Succesfully loaded model")
 
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True

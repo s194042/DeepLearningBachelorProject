@@ -3,14 +3,14 @@
 ### –- specify queue --
 #BSUB -q gpua100
 ### -- set the job Name --
-#BSUB -J LossFirstRun
+#BSUB -J CE_L1_2
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 1
 ### -- Select the resources: 1 gpu in exclusive process mode --
 #BSUB -gpu "num=1:mode=exclusive_process"
 ### -- set walltime limit: hh:mm --  maximum 24 hours for GPU-queues right now
 #BSUB -W 23:30
-# request 12GB of system-memory
+# request 32GB of system-memory
 #BSUB -R "rusage[mem=32GB]"
 ### -- set the email address --
 # please uncomment the following line and put in your e-mail address,
@@ -34,4 +34,4 @@ module load cuda/11.6
 cd /work3/s194042/
 source .env/bin/activate
 cd DeepLearningBachelorProject/Code
-python Image_functions/HPCLossv2.py LossFirstRun
+python Image_functions/HPC_entropy.py CE_L1_2

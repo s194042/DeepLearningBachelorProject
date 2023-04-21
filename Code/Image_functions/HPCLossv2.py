@@ -151,7 +151,7 @@ for epoch in range(start_epoch, epochs):
             if optimizer.param_groups[-1]['lr'] > max_lr:
                 falling = True
 
-        if (startup and printing and index % (112//batch_size) == (112//batch_size)-1) or (not startup and printing and index % (20*(112//batch_size) == (112//batch_size))-1):
+        if (startup and printing and index % (200//batch_size) == (200//batch_size)-1) or (not startup and printing and index % (20*(200//batch_size) == (200//batch_size))-1):
             print("loss")
             print(loss.item())
             print("lr")

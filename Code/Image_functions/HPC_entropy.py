@@ -35,8 +35,8 @@ run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
 
 loss_fn = nn.L1Loss(reduction='mean') if len(sys.argv) < 3 or sys.argv[2] == "L1" else nn.MSELoss() 
 startup = True
-min_lr = 0.002
-max_lr = 0.008
+min_lr = 0.0005
+max_lr = 0.004
 decay = 0.95
 steps = 200  # might want to bump this up if the HPC is much faster than my computer
 falling = True
@@ -72,7 +72,7 @@ model = compress_entropy.Compress().to(device).to(memory_format=torch.channels_l
 optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
 
 if load:
-    model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,startup = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/CE_L1/Checkpoints/CE_L1_44_checkpoint.pt")
+    model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,startup = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/CE_L1_2/Checkpoints/CE_L1_2_23_checkpoint.pt")
     print("Succesfully loaded model")
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True

@@ -5,6 +5,7 @@ import numpy as np
 torch.manual_seed(100)
 np.random.seed(100)
 import os
+import time
 import sys
 import Lossv2
 import generateLossImages
@@ -64,12 +65,14 @@ except:
 
 printing = True
 epochs = 100
-batch_size = 40
+batch_size = 50
 load = True
 
 
 model = Lossv2.Loss(seperable=True, slim=True).to(device).to(memory_format=torch.channels_last)
 optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
+
+current_hour = time.localtime().tm_hour
 
 if load:
     model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,_ = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/LossFirstRun/Checkpoints/LossFirstRun_3_checkpoint.pt")

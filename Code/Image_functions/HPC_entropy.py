@@ -75,6 +75,7 @@ if load:
     model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,startup = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/CE_L1_3/Checkpoints/CE_L1_3_22_checkpoint.pt")
     print("Succesfully loaded model")
     print("Starup:",startup)
+    print(min_lr,max_lr)
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.autograd.set_detect_anomaly(False, check_nan=False)

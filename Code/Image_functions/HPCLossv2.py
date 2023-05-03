@@ -77,6 +77,7 @@ current_hour = time.localtime().tm_hour
 if load:
     model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,_ = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/LossFirstRun/Checkpoints/LossFirstRun_3_checkpoint.pt")
     print("Succesfully loaded model")
+    print(min_lr,max_lr)
 
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -125,9 +126,9 @@ for epoch in range(start_epoch, epochs):
             scaler.step(optimizer)#optimizer.step()
             scaler.update()
             optimizer.zero_grad(set_to_none=True)
-        if falling:
+        if falling or time.localtime().tm_hour != current_hour:
             optimizer.param_groups[-1]['lr'] = optimizer.param_groups[-1]['lr'] - step_size
-            if optimizer.param_groups[-1]['lr'] < min_lr:
+            if optimizer.param_groups[-1]['lr'] < min_lr or time.localtime().tm_hour:
                 falling = False
                 max_lr *= decay
                 min_lr *= decay
@@ -141,7 +142,8 @@ for epoch in range(start_epoch, epochs):
                     print(max_lr)
                 checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict(), 'startup': startup}
                 save_ckp(checkpoint, True, checkpoint_dir = checkpoint_dir + run_name + "_", best_model_dir = best_dir + run_name + "_")
-                
+                if time.localtime().tm_hour != current_hour:
+                    current_hour = time.localtime().tm_hour
                 if startup and sum(los)/(112//batch_size) < 0.05 and max(los) < 0.1:
                     startup = False
                     max_lr /= 4

@@ -65,8 +65,8 @@ fn JPEGcompress_and_decompress(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, samplin
 
 
 #[pyfunction]
-fn arith_encode_latent_layer(mut latent_layer : Vec<isize>, path : &str) -> Py<PyAny>{
-    let eof : isize = 2isize.pow(20);
+fn arith_encode_latent_layer(mut latent_layer : Vec<i32>, path : &str) -> Py<PyAny>{
+    let eof : i32 = 2i32.pow(20);
     let mut arith_encoder = arithmetic_encoding::ArithEncoder::new(latent_layer,eof);
     arith_encoder.encode();
     return Python::with_gil(|py| arith_encoder.encoded_message.to_object(py));

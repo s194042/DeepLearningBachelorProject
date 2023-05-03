@@ -18,40 +18,28 @@ pub struct AuxiliaryData{
     pub sample_type : Sampling
 }
 
-
-pub fn arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>,aux_data : AuxiliaryData , path : &str){
-
-    let buffer = encode_JPEG_buffer(&arith_encoder.freq_count, &arith_encoder.encoded_message,&aux_data);
-    write_to_bin(&buffer, path)
-
-}
-
-pub fn arithmetic_encoding_from_file(path : &str) -> (AuxiliaryData,ArithEncoder<JPEGSymbol>){
-    let mut buffer = load_from_bin(path);
-    let (aux_data,freq_vec,encoded_message) = decode_JPEG_buffer(&mut buffer);
-    return (aux_data,ArithEncoder::from_encoded_message(freq_vec, encoded_message, JPEGSymbol::EOF));
-}
-
-
-pub fn write_to_bin(buffer : &BinaryBuffer, path : &str){
-    let mut file = File::create(path).unwrap();
-    file.write_all(&buffer.buffer).unwrap();
-}
-
-
-pub fn load_from_bin(path : &str) -> BinaryBuffer{
-    let mut file = File::open(path).unwrap();
-    // read the same file back into a Vec of bytes
-    let mut buffer = Vec::<u8>::new();
-    file.read_to_end(&mut buffer).unwrap();
-    return BinaryBuffer{
-        buffer,
+pub fn encode_AE_buffer(freq_vec : &Vec<(i32,i32)>, encoded_message : &Vec<u8>) -> BinaryBuffer{
+    let mut buffer  = BinaryBuffer{
+        buffer : vec![],
         write_index : 0,
-        read_index : 0,
+        read_index : 0
+    };
+    for (symbol,freq) in freq_vec{
+        push_i32_to_buffer(&mut buffer , *symbol);
+        push_i32_to_buffer(&mut buffer, *freq);
     }
+    push_i32_to_buffer(&mut buffer, 2i32.pow(21));
+    for bit in encoded_message{
+        push_to_buffer(&mut buffer, 1, *bit);
+    }
+
+    return buffer;
 }
+/* 
+pub fn decode_AE_buffer(buffer : BinaryBuffer) -> (Vec<(i32,i32)>,Vec<u8>){
 
-
+}
+*/
 
 pub fn encode_JPEG_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &Vec<u8>, aux_data : &AuxiliaryData) -> BinaryBuffer{
 
@@ -92,7 +80,6 @@ pub fn encode_JPEG_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &
     return buffer_result;
 }
 
-
 pub fn decode_JPEG_buffer(buffer : &mut BinaryBuffer) -> (AuxiliaryData,Vec<(JPEGSymbol,i32)>,Vec<u8>){
     let mut freq_vec = vec![];
 
@@ -128,6 +115,36 @@ pub fn decode_JPEG_buffer(buffer : &mut BinaryBuffer) -> (AuxiliaryData,Vec<(JPE
     return (aux_data,freq_vec,encoded_message);
 }
 
+pub fn arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>,aux_data : AuxiliaryData , path : &str){
+
+    let buffer = encode_JPEG_buffer(&arith_encoder.freq_count, &arith_encoder.encoded_message,&aux_data);
+    write_to_bin(&buffer, path)
+
+}
+
+pub fn arithmetic_encoding_from_file(path : &str) -> (AuxiliaryData,ArithEncoder<JPEGSymbol>){
+    let mut buffer = load_from_bin(path);
+    let (aux_data,freq_vec,encoded_message) = decode_JPEG_buffer(&mut buffer);
+    return (aux_data,ArithEncoder::from_encoded_message(freq_vec, encoded_message, JPEGSymbol::EOF));
+}
+
+pub fn write_to_bin(buffer : &BinaryBuffer, path : &str){
+    let mut file = File::create(path).unwrap();
+    file.write_all(&buffer.buffer).unwrap();
+}
+
+pub fn load_from_bin(path : &str) -> BinaryBuffer{
+    let mut file = File::open(path).unwrap();
+    // read the same file back into a Vec of bytes
+    let mut buffer = Vec::<u8>::new();
+    file.read_to_end(&mut buffer).unwrap();
+    return BinaryBuffer{
+        buffer,
+        write_index : 0,
+        read_index : 0,
+    }
+}
+
 pub fn read_from_buffer(buffer : &mut BinaryBuffer, count : usize) -> u64{
     let mut result : u64 = 0;
     for i in 0..count{
@@ -157,7 +174,6 @@ pub fn push_f64_to_buffer(buffer : &mut BinaryBuffer, to_push64 : f64){
         to_push = 0;
     }
 }
-
 
 pub fn push_to_buffer(buffer : &mut BinaryBuffer, mut count : usize, to_push : u8){
     let mut to_push = to_push;

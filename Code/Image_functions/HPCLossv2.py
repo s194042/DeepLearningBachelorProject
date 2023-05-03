@@ -66,7 +66,7 @@ except:
 printing = True
 epochs = 100
 batch_size = 50
-load = True
+load = False
 
 
 model = Lossv2.Loss(seperable=True, slim=True).to(device).to(memory_format=torch.channels_last)

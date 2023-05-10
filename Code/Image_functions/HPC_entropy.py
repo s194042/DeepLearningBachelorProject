@@ -35,8 +35,8 @@ run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
 
 loss_fn = nn.L1Loss(reduction='mean') if len(sys.argv) < 3 or sys.argv[2] == "L1" else nn.MSELoss() 
 startup = True
-min_lr = 0.0005
-max_lr = 0.004
+min_lr = 0.005
+max_lr = 0.04
 decay = 0.95
 steps = 200  # might want to bump this up if the HPC is much faster than my computer
 falling = True

@@ -11,7 +11,7 @@ if __name__ == '__main__':
     import generateLossImages
 
     global counter 
-    counter = 0
+    counter = 18
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     def save_ckp(state, is_best, checkpoint_dir="./models/rest/", best_model_dir="./models/best/"):
         global counter 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
             best_fpath = best_model_dir + 'best_model.pt'
             shutil.copyfile(f_path, best_fpath)
 
-    def load_ckp(model, optimizer, checkpoint_fpath="./models/rest/15_checkpoint.pt"):
+    def load_ckp(model, optimizer, checkpoint_fpath="./models/rest/17_checkpoint.pt"):
         checkpoint = torch.load(checkpoint_fpath)
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
@@ -46,6 +46,12 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
     scaler = torch.cuda.amp.GradScaler(enabled=True)
 
+    load = True
+    if load:
+        loss_fn = nn.L1Loss()
+        model = Lossv2.Loss(seperable=False, slim=True).to(device)
+        optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
+        model, optimizer, start_epoch, start_index, min_lr, max_lr, steps, step_size, falling = load_ckp(model, optimizer)
 
 
     from torch.cuda.amp import autocast
@@ -61,7 +67,7 @@ if __name__ == '__main__':
     from torch.utils.data import DataLoader
     torch.set_grad_enabled(True)
 
-    startup = True
+    startup = False
     for epoch in range(start_epoch, epochs):
         if startup:
             training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
@@ -105,6 +111,8 @@ if __name__ == '__main__':
                     steps /= decay
                     step_size = (max_lr-min_lr)/steps
                     if printing:
+                        print("loss")
+                        print(loss.item())
                         print("Saving model !!")
                         print("Min lr")
                         print(min_lr)
@@ -129,7 +137,7 @@ if __name__ == '__main__':
                 if optimizer.param_groups[-1]['lr'] > max_lr:
                     falling = True
 
-            if (startup and printing and index % len(los) == len(los)-1) or (not startup and printing and index % 20*len(los)-1 == 0):
+            if (startup and printing and index % len(los) == len(los)-1) or (not startup and printing and index % 200 == 0):
                 print("loss")
                 print(loss.item())
                 print("lr")

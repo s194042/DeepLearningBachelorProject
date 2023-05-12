@@ -11,7 +11,7 @@ if __name__ == '__main__':
     import generateLossImages
 
     global counter 
-    counter = 18
+    counter = 0
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     def save_ckp(state, is_best, checkpoint_dir="./models/rest/", best_model_dir="./models/best/"):
         global counter 
@@ -33,10 +33,10 @@ if __name__ == '__main__':
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
     loss_fn = nn.L1Loss()
-    min_lr = 0.002
-    max_lr = 0.008
-    decay = 0.96
-    steps = 500
+    min_lr = 0.001
+    max_lr = 0.003
+    decay = 0.95
+    steps = 100
     falling = True
     start_epoch = 0
     start_index = 0
@@ -46,12 +46,12 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
     scaler = torch.cuda.amp.GradScaler(enabled=True)
 
-    load = True
-    if load:
-        loss_fn = nn.L1Loss()
-        model = Lossv2.Loss(seperable=False, slim=True).to(device)
-        optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
-        model, optimizer, start_epoch, start_index, min_lr, max_lr, steps, step_size, falling = load_ckp(model, optimizer)
+    #load = True
+    #if load:
+    #    loss_fn = nn.L1Loss()
+    #    model = Lossv2.Loss(seperable=False, slim=True).to(device)
+    #    optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
+    #    model, optimizer, start_epoch, start_index, min_lr, max_lr, steps, step_size, falling = load_ckp(model, optimizer)
 
 
     from torch.cuda.amp import autocast

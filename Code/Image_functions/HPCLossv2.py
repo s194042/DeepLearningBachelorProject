@@ -69,7 +69,7 @@ batch_size = 50
 load = False
 
 
-model = Lossv2.Loss(seperable=True, slim=True).to(device).to(memory_format=torch.channels_last)
+model = Lossv2.Loss(seperable=False, slim=True).to(device).to(memory_format=torch.channels_last)
 optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
 
 current_hour = time.localtime().tm_hour

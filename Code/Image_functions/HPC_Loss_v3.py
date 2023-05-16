@@ -78,7 +78,7 @@ if __name__ == '__main__':
     from torch.cuda.amp import autocast
     printing = True
     epochs = 100
-    batch_size = 30
+    batch_size = 60
     torch.backends.cudnn.benchmark = True
     torch.autograd.set_detect_anomaly(False, check_nan=False)
     torch.autograd.profiler.profile(enabled=False)

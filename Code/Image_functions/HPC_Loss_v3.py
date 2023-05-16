@@ -87,13 +87,12 @@ if __name__ == '__main__':
 
     from torch.utils.data import DataLoader
     torch.set_grad_enabled(True)
-    print("HEJ RANI")
 
     startup = True
     for epoch in range(start_epoch, epochs):
-        print("HEJ RANI 2")
         if startup:
-            training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
+            #training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
+            training = generateLossImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, startup = True)
             training_loader = DataLoader(training, batch_size=batch_size, num_workers=0)
             min_lr /= batch_size**0.5  # normally one puts the learning rate up by sqrt(batchsize), since that keeps the variance constant, however since we use sum in L1Loss, the oposit is true
             max_lr /= batch_size**0.5
@@ -101,7 +100,8 @@ if __name__ == '__main__':
             optimizer.param_groups[-1]['lr'] = max_lr
             los = [0]*(112//batch_size)
         else:
-            training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
+            #training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
+            training = generateLossImages.MakeIter(path = path, folder = folder, start_index=start_index if epoch == start_epoch else 0, epoch=epoch, startup = False)
             training_loader = DataLoader(training, batch_size=batch_size, num_workers=0)
 
         for index, data in enumerate(training_loader):

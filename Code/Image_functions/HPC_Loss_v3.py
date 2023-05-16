@@ -91,6 +91,7 @@ if __name__ == '__main__':
 
     startup = True
     for epoch in range(start_epoch, epochs):
+        print("HEJ RANI 2")
         if startup:
             training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)
             training_loader = DataLoader(training, batch_size=batch_size, num_workers=0)

@@ -1,17 +1,21 @@
 
 
 if __name__ == '__main__':
+    import time
     import shutil
     import torch
     import torch.nn as nn
     import numpy as np
+    import sys
+    import os
     torch.manual_seed(100)
     np.random.seed(100)
     import Lossv2
     import generateLossImages
 
     global counter 
-    counter = 0
+    saved = False
+    counter = 18
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     def save_ckp(state, is_best, checkpoint_dir="./models/rest/", best_model_dir="./models/best/"):
         global counter 
@@ -45,17 +49,34 @@ if __name__ == '__main__':
     model = Lossv2.Loss(seperable=False, slim=True).to(device).to(memory_format=torch.channels_last)
     optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
     scaler = torch.cuda.amp.GradScaler(enabled=True)
+    run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
+    path = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/IMAGE_NEF/"
+    folder = "IMAGES_1"
+    output_files_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name
+    checkpoint_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Checkpoints/"
+    best_dir = "/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/" + run_name + "/Best/"
+    try:
+        os.mkdir(output_files_dir)
+        os.mkdir(checkpoint_dir)
+        os.mkdir(best_dir)
+        f = open("/work3/s194042/DeepLearningBachelorProject/.gitignore","a")
+        f.write("\n/Code/Image_functions/" + run_name +"/")
+        f.close()
+    except:
+        print("Reusing preexisting folder for run: " + run_name)
 
-    #load = True
-    #if load:
-    #    loss_fn = nn.L1Loss()
-    #    model = Lossv2.Loss(seperable=False, slim=True).to(device)
-    #    optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
-    #    model, optimizer, start_epoch, start_index, min_lr, max_lr, steps, step_size, falling = load_ckp(model, optimizer)
+    loss_fn = nn.L1Loss()
+    load = False
+    if load:
+        model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,_ = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/LossFirstRun/Checkpoints/LossFirstRun_3_checkpoint.pt")
+        print("Succesfully loaded model")
+        print(min_lr,max_lr)
+
+
 
 
     from torch.cuda.amp import autocast
-    printing = True
+    printing = False
     epochs = 100
     batch_size= 14
     torch.backends.cudnn.benchmark = True
@@ -104,7 +125,7 @@ if __name__ == '__main__':
 
             if falling:
                 optimizer.param_groups[-1]['lr'] = optimizer.param_groups[-1]['lr'] - step_size
-                if optimizer.param_groups[-1]['lr'] < min_lr:
+                if time.localtime().tm_min % 30 == 0 and not saved :
                     falling = False
                     max_lr *= decay
                     min_lr *= decay
@@ -120,8 +141,8 @@ if __name__ == '__main__':
                         print(max_lr)
                     checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()
                     }
-                    save_ckp(checkpoint, True)
-                    
+                    save_ckp(checkpoint, True, checkpoint_dir = checkpoint_dir + run_name + "_", best_model_dir = best_dir + run_name + "_")
+                    saved = True
                     if startup and sum(los)/len(los) < 0.05 and max(los) < 0.1:
                         startup = False
                         max_lr /= 3
@@ -132,6 +153,9 @@ if __name__ == '__main__':
                         optimizer.param_groups[-1]['lr'] = max_lr
                         print("startup done ! !")
                         break
+                else:
+                    if time.localtime().tm_min % 30 != 0:
+                        saved = False
             else: 
                 optimizer.param_groups[-1]['lr'] += step_size
                 if optimizer.param_groups[-1]['lr'] > max_lr:

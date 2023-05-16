@@ -35,9 +35,9 @@ run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
 
 loss_fn = nn.L1Loss(reduction='mean') if len(sys.argv) < 3 or sys.argv[2] == "L1" else nn.MSELoss() 
 startup = True
-min_lr = 0.005
-max_lr = 0.04
-decay = 0.95
+min_lr = 0.001
+max_lr = 0.004
+decay = 0.97
 steps = 200  # might want to bump this up if the HPC is much faster than my computer
 falling = True
 start_epoch = 0
@@ -76,6 +76,8 @@ if load:
     print("Succesfully loaded model")
     print("Starup:",startup)
     print(min_lr,max_lr)
+    optimizer.param_groups[-1]['lr'] = max_lr
+    falling = True
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.autograd.set_detect_anomaly(False, check_nan=False)

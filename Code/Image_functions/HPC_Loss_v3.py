@@ -76,9 +76,9 @@ if __name__ == '__main__':
 
 
     from torch.cuda.amp import autocast
-    printing = False
+    printing = True
     epochs = 100
-    batch_size= 14
+    batch_size = 30
     torch.backends.cudnn.benchmark = True
     torch.autograd.set_detect_anomaly(False, check_nan=False)
     torch.autograd.profiler.profile(enabled=False)
@@ -87,8 +87,9 @@ if __name__ == '__main__':
 
     from torch.utils.data import DataLoader
     torch.set_grad_enabled(True)
+    print("HEJ RANI")
 
-    startup = False
+    startup = True
     for epoch in range(start_epoch, epochs):
         if startup:
             training = generateLossImages.MakeIter(start_index=start_index if epoch == start_epoch else 0, startup = True)

@@ -3,7 +3,7 @@
 ### –- specify queue --
 #BSUB -q gpua100
 ### -- set the job Name --
-#BSUB -J Loss1lr0_0001_0_00003
+#BSUB -J CE_L1_7
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 1
 ### -- Select the resources: 1 gpu in exclusive process mode --
@@ -34,4 +34,4 @@ module load cuda/11.6
 cd /work3/s194042/
 source .env/bin/activate
 cd DeepLearningBachelorProject/Code
-python Image_functions/HPC_Loss_v3.py Loss1lr0_0001_0_00003
+python Image_functions/HPC_entropy.py CE_L1_7

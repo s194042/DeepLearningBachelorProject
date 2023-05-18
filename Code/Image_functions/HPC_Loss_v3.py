@@ -37,9 +37,9 @@ if __name__ == '__main__':
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
     loss_fn = nn.L1Loss()
-    min_lr = 0.001
-    max_lr = 0.003
-    decay = 0.95
+    min_lr = 0.0003
+    max_lr = 0.001
+    decay = 0.96
     steps = 100
     falling = True
     start_epoch = 0
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     from torch.cuda.amp import autocast
     printing = True
     epochs = 100
-    batch_size = 60
+    batch_size = 100
     torch.backends.cudnn.benchmark = True
     torch.autograd.set_detect_anomaly(False, check_nan=False)
     torch.autograd.profiler.profile(enabled=False)

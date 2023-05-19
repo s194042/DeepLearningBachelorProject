@@ -34,4 +34,4 @@ module load cuda/11.6
 cd /work3/s194042/
 source .env/bin/activate
 cd DeepLearningBachelorProject/Code
-python Image_functions/HPC_entropy.py CE_L1_7
+python Image_functions/HPC_Loss_v3.py Loss1_lr_0_004_0_001

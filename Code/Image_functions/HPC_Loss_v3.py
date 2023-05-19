@@ -37,8 +37,8 @@ if __name__ == '__main__':
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
     loss_fn = nn.L1Loss()
-    min_lr = 0.00003
-    max_lr = 0.0001
+    min_lr = 0.001
+    max_lr = 0.004
     decay = 0.96
     steps = 100
     falling = True

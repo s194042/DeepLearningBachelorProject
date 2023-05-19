@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
             if falling:
                 optimizer.param_groups[-1]['lr'] = optimizer.param_groups[-1]['lr'] - step_size
-                if time.localtime().tm_min % 30 == 0 and not saved :
+                if optimizer.param_groups[-1]['lr'] <= min_lr:
                     falling = False
                     max_lr *= decay
                     min_lr *= decay
@@ -144,7 +144,7 @@ if __name__ == '__main__':
                     checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()
                     }
                     save_ckp(checkpoint, True, checkpoint_dir = checkpoint_dir + run_name + "_", best_model_dir = best_dir + run_name + "_")
-                    saved = True
+                    
                     if startup and sum(los)/len(los) < 0.05 and max(los) < 0.1:
                         startup = False
                         max_lr /= 3
@@ -155,14 +155,25 @@ if __name__ == '__main__':
                         optimizer.param_groups[-1]['lr'] = max_lr
                         print("startup done ! !")
                         break
-                else:
-                    if time.localtime().tm_min % 30 != 0:
-                        saved = False
             else: 
                 optimizer.param_groups[-1]['lr'] += step_size
                 if optimizer.param_groups[-1]['lr'] > max_lr:
                     falling = True
-
+            if time.localtime().tm_min % 30 == 0 and not saved:
+                if printing:
+                    print("loss")
+                    print(loss.item())
+                    print("Saving model !!")
+                    print("Min lr")
+                    print(min_lr)
+                    print("Max lr")
+                    print(max_lr)
+                checkpoint = {'epoch': epoch, 'index': index, 'min_lr': min_lr, 'max_lr': max_lr, 'steps': steps, 'step_size': step_size, 'falling': falling, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()}
+                save_ckp(checkpoint, True, checkpoint_dir = checkpoint_dir + run_name + "_", best_model_dir = best_dir + run_name + "_")
+                saved = True
+            else:
+                if time.localtime().tm_min % 30 != 0:
+                    saved = False
             if (startup and printing and index % len(los) == len(los)-1) or (not startup and printing and index % 200 == 0):
                 print("loss")
                 print(loss.item())

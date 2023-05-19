@@ -76,7 +76,6 @@ if load:
     print("Succesfully loaded model")
     print("Starup:",startup)
     print(min_lr,max_lr)
-    print(start_epoch)
     optimizer.param_groups[-1]['lr'] = max_lr
     falling = True
 torch.backends.cudnn.allow_tf32 = True

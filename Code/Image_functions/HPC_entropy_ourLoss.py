@@ -35,8 +35,6 @@ def load_ckp(model, optimizer, checkpoint_fpath="./models/rest/15_checkpoint.pt"
 run_name = "defualt" if len(sys.argv) < 2 else sys.argv[1]
 
 #loss_fn = nn.L1Loss(reduction='mean') if len(sys.argv) < 3 or sys.argv[2] == "L1" else nn.MSELoss() 
-our_loss = Lossv2.Loss(seperable=False, slim=True).to(device).to(memory_format=torch.channels_last)
-our_loss.load_state_dict("C:/Users/Rani/Documents/GitHub/DeepLearningBachelorProject/Code/Image_functions/models/Loss1_lr_0_004_0_001_147_checkpoint.pt")
 startup = True
 min_lr = 0.001
 max_lr = 0.004
@@ -73,6 +71,8 @@ current_hour = time.localtime().tm_hour
 
 model = compress_entropy.Compress().to(device).to(memory_format=torch.channels_last)
 optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
+our_loss = Lossv2.Loss(seperable=False, slim=True).to(device).to(memory_format=torch.channels_last)
+our_loss = load_ckp(our_loss, torch.optim.SGD(our_loss.parameters(), lr=max_lr, momentum=momentum), "C:/Users/Rani/Documents/GitHub/DeepLearningBachelorProject/Code/Image_functions/models/Loss1_lr_0_004_0_001_147_checkpoint.pt")[0]
 
 if load:
     model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,startup = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/CE_L1_6/Checkpoints/CE_L1_6_23_checkpoint.pt")

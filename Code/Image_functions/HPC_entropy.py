@@ -72,11 +72,12 @@ model = compress_entropy.Compress().to(device).to(memory_format=torch.channels_l
 optimizer = torch.optim.SGD(model.parameters(), lr=max_lr, momentum=momentum)
 
 if load:
-    model,optimizer,start_epoch,_,min_lr,max_lr,steps,step_size,falling,startup = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/CE_L1_7/Checkpoints/CE_L1_7_23_checkpoint.pt")
+    model,optimizer,start_epoch,_,_,_,steps,step_size,falling,startup = load_ckp(model,optimizer,"/work3/s194042/DeepLearningBachelorProject/Code/Image_functions/CE_L1_7/Checkpoints/CE_L1_7_23_checkpoint.pt")
     print("Succesfully loaded model")
     print("Starup:",startup)
     print(min_lr,max_lr)
     optimizer.param_groups[-1]['lr'] = max_lr
+    print(optimizer.param_groups[-1]["lr"])
     falling = True
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True

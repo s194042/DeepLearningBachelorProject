@@ -60,7 +60,7 @@ pub fn parallel_function_over_channels(mut image : JPEGContainer, func : Arc<dyn
 
 }
 
-pub fn color_transform_and_dowsample_image(image : Vec<Vec<Vec<f64>>>, sample_type : Sampling, Qf : f64) -> JPEGContainer{
+pub fn  (image : Vec<Vec<Vec<f64>>>, sample_type : Sampling, Qf : f64) -> JPEGContainer{
 
     let (height,width) = (8 * (image.len() as f64 / 8.0).ceil() as usize,8 * (image[0].len() as f64 / 8.0).ceil() as usize);
 

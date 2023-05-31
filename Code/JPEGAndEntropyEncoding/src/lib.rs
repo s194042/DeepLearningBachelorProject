@@ -1,3 +1,4 @@
+use arithmetic_encoding::ArithEncoder;
 use pyo3::prelude::*;
 mod colorspace_transforms;
 mod dct;
@@ -42,6 +43,7 @@ fn JPEGAndEntropyEncoding(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(JPEG_compress_to_file,m)?)?;
     m.add_function(wrap_pyfunction!(JPEG_decompress_from_file,m)?)?;
     m.add_function(wrap_pyfunction!(arith_encode_latent_layer,m)?)?;
+    m.add_function(wrap_pyfunction!(arith_decode_latent_layer,m)?)?;
     Ok(())
 }
 
@@ -51,10 +53,19 @@ fn arith_encode_latent_layer(mut latent_layer : Vec<i32>, path : &str) -> Py<PyA
     let eof : i32 = 2i32.pow(20);
     let mut arith_encoder = arithmetic_encoding::ArithEncoder::new(latent_layer,eof);
     arith_encoder.encode();
+    file_io::write_to_bin(&file_io::encode_AE_buffer(&arith_encoder.freq_count, &arith_encoder.encoded_message), path);
     return Python::with_gil(|py| arith_encoder.encoded_message.to_object(py));
 
 }
+#[pyfunction]
+fn arith_decode_latent_layer(path : &str) -> Py<PyAny>{
+    let eof = 2i32.pow(21);
+    let (freq_vec, encoded_message) = file_io::decode_AE_buffer(file_io::load_from_bin(path));
+    let mut arith_encoder = ArithEncoder::from_encoded_message(freq_vec, encoded_message, eof);
+    arith_encoder.decode();
+    return Python::with_gil(|py| arith_encoder.message.to_object(py));
 
+}
 
 
 
@@ -80,7 +91,6 @@ fn JPEG_compress_to_file(mut image : Vec<Vec<Vec<f64>>>, Qf : f64, sampling : &s
     };
     let mut arith_encoder = JPEGSteps::entropy_encoding(container);
     arith_encoder.encode();
-    arith_encoder.decode();
     file_io::JPEG_arithmetic_encoding_to_file(&arith_encoder, aux_data, path);
 }
 

@@ -42,13 +42,18 @@ pub fn encode_AE_buffer(freq_vec : &Vec<(i32,i32)>, encoded_message : &Vec<u8>) 
 pub fn decode_AE_buffer(mut buffer : BinaryBuffer) -> (Vec<(i32,i32)>,Vec<u8>){
     let mut freq_vec = vec![];
     let mut encoding = vec![];
+
     loop{
-        let next = read_from_buffer(&mut buffer, 32) as i32;
-        match next{
-            23 => {break},
+        match read_from_buffer(&mut buffer, 32) as i32{
+            2097152 => {break},
             x => freq_vec.push((x,read_from_buffer(&mut buffer, 32) as i32))
         };
     };
+    while buffer.read_index < buffer.buffer.len() * 8{
+        encoding.push(read_from_buffer(&mut buffer, 1) as u8)
+    }
+
+
     return (freq_vec,encoding);
 }
 
@@ -281,6 +286,7 @@ mod test{
         assert_eq!(aux_data.Qf,aux_data_decoded.Qf);
     }
 
+    #[test]
     fn test_encode_decode_AE_buffer(){
         let freq_vec = vec![(0,4),(123,10),(7,12),(-12,5)];
         let encoded_message = vec![1,1,1,1,0,0,1,0,1,0,0,1,0,1,1,0,0,1,0,1,0,1];
@@ -289,7 +295,7 @@ mod test{
         let (freq_vec_decoded,encoded_message_decoded) = decode_AE_buffer(buffer);
 
         assert_eq!(freq_vec,freq_vec_decoded);
-        assert_eq!(encoded_message,encoded_message_decoded); 
+        assert_eq!(encoded_message,encoded_message_decoded[0..encoded_message.len()]); 
     }
 
 }

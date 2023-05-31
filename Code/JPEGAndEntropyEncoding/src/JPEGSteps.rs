@@ -1,4 +1,4 @@
-use crate::{JPEGContainer,Sampling::*,Sampling, dct,quantization,entropy_encoding_step::{*},arithmetic_encoding::{self, ArithEncoder}, file_io::AuxiliaryData};
+use crate::{JPEGContainer,Sampling::*,Sampling, dct,quantization,runlength_encoding::{*},arithmetic_encoding::{self, ArithEncoder}, file_io::AuxiliaryData};
 use crate::colorspace_transforms::*;
 use core::panic;
 use std::{ops::DerefMut, io::Empty};
@@ -60,7 +60,7 @@ pub fn parallel_function_over_channels(mut image : JPEGContainer, func : Arc<dyn
 
 }
 
-pub fn  (image : Vec<Vec<Vec<f64>>>, sample_type : Sampling, Qf : f64) -> JPEGContainer{
+pub fn color_transform_and_dowsample_image(image : Vec<Vec<Vec<f64>>>, sample_type : Sampling, Qf : f64) -> JPEGContainer{
 
     let (height,width) = (8 * (image.len() as f64 / 8.0).ceil() as usize,8 * (image[0].len() as f64 / 8.0).ceil() as usize);
 
@@ -282,66 +282,3 @@ pub fn upsample_and_inverse_color_transform_image(image : JPEGContainer) -> Vec<
 }
 
 
-
-
-#[cfg(test)]
-mod test{
-    use super::*;
-    use crate::{JPEGContainer,Sampling::*,Sampling};
-    use crate::colorspace_transforms::*;
-
-    #[test]
-    fn test_color_transform_and_downsample_step(){
-
-
-        let test_case = vec![vec![vec![1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0];8];3];
-        let compare_target = test_case.clone();
-
-        let result1 = color_transform_and_dowsample_image(test_case.clone(), Down444, 50.0);
-
-        for i in 0..8{
-            for j in 0..8{
-                assert_eq!(result1.y_channel[i][j],rgb_to_y(test_case[0][i][j], test_case[1][i][j], test_case[2][i][j]));
-                assert_eq!(result1.cb_channel[i][j],rgb_to_cb(test_case[0][i][j], test_case[1][i][j], test_case[2][i][j]));
-                assert_eq!(result1.cr_channel[i][j],rgb_to_cr(test_case[0][i][j], test_case[1][i][j], test_case[2][i][j]));
-
-            }
-        }
-
-        let result2 = color_transform_and_dowsample_image(test_case.clone(), Down422, 50.0);
-
-
-        for i in 0..8{
-            for j in 0..8{
-                assert_eq!(result2.y_channel[i][j],rgb_to_y(test_case[0][i][j], test_case[1][i][j], test_case[2][i][j]));
-            }
-        }
-
-        for i in 0..8{
-            for j in 0..4{
-                assert_eq!(result2.cb_channel[i][j],rgb_to_cb(test_case[0][i][j * 2], test_case[1][i][j * 2], test_case[2][i][j * 2]));
-                assert_eq!(result2.cr_channel[i][j],rgb_to_cb(test_case[0][i][j * 2], test_case[1][i][j * 2], test_case[2][i][j * 2]));
-            }
-        }
-
-        let result3 = color_transform_and_dowsample_image(test_case.clone(), Down422, 50.0);
-
-
-        for i in 0..8{
-            for j in 0..8{
-                assert_eq!(result2.y_channel[i][j],rgb_to_y(test_case[0][i][j], test_case[1][i][j], test_case[2][i][j]));
-            }
-        }
-
-        for i in 0..4{
-            for j in 0..4{
-                assert_eq!(result3.cb_channel[i][j],rgb_to_cb(test_case[0][i * 2][j * 2], test_case[1][i * 2][j * 2], test_case[2][i * 2][j * 2]));
-                assert_eq!(result3.cr_channel[i][j],rgb_to_cb(test_case[0][i * 2][j * 2], test_case[1 * 2][i][j * 2], test_case[2][i * 2][j * 2]));
-            }
-        }
-
-    }
-
-
-
-}

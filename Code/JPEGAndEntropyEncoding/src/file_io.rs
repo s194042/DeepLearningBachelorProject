@@ -2,7 +2,7 @@ use std::{fs::File,io::prelude::*,env};
 
 use pyo3::buffer;
 
-use crate::{entropy_encoding_step::JPEGSymbol, arithmetic_encoding::ArithEncoder,Sampling};
+use crate::{runlength_encoding::JPEGSymbol, arithmetic_encoding::ArithEncoder,Sampling};
 
 
 

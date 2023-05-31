@@ -4,11 +4,11 @@ mod dct;
 mod quantization;
 mod arithmetic_encoding;
 mod JPEGSteps;
-mod entropy_encoding_step;
+mod runlength_encoding;
 mod file_io;
 use std::{sync::{Arc,Mutex}};
 
-use crate::entropy_encoding_step::JPEGSymbol;
+use crate::runlength_encoding::JPEGSymbol;
 
 pub struct JPEGContainer{
     y_channel : Vec<Vec<f64>>,

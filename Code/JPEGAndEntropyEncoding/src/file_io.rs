@@ -18,6 +18,9 @@ pub struct AuxiliaryData{
     pub sample_type : Sampling
 }
 
+
+
+
 pub fn encode_AE_buffer(freq_vec : &Vec<(i32,i32)>, encoded_message : &Vec<u8>) -> BinaryBuffer{
     let mut buffer  = BinaryBuffer{
         buffer : vec![],
@@ -35,11 +38,20 @@ pub fn encode_AE_buffer(freq_vec : &Vec<(i32,i32)>, encoded_message : &Vec<u8>) 
 
     return buffer;
 }
-/* 
-pub fn decode_AE_buffer(buffer : BinaryBuffer) -> (Vec<(i32,i32)>,Vec<u8>){
 
+pub fn decode_AE_buffer(mut buffer : BinaryBuffer) -> (Vec<(i32,i32)>,Vec<u8>){
+    let mut freq_vec = vec![];
+    let mut encoding = vec![];
+    loop{
+        let next = read_from_buffer(&mut buffer, 32) as i32;
+        match next{
+            23 => {break},
+            x => freq_vec.push((x,read_from_buffer(&mut buffer, 32) as i32))
+        };
+    };
+    return (freq_vec,encoding);
 }
-*/
+
 
 pub fn encode_JPEG_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &Vec<u8>, aux_data : &AuxiliaryData) -> BinaryBuffer{
 
@@ -80,6 +92,7 @@ pub fn encode_JPEG_buffer(freq_vec : &Vec<(JPEGSymbol,i32)>, encoded_message : &
     return buffer_result;
 }
 
+
 pub fn decode_JPEG_buffer(buffer : &mut BinaryBuffer) -> (AuxiliaryData,Vec<(JPEGSymbol,i32)>,Vec<u8>){
     let mut freq_vec = vec![];
 
@@ -115,14 +128,14 @@ pub fn decode_JPEG_buffer(buffer : &mut BinaryBuffer) -> (AuxiliaryData,Vec<(JPE
     return (aux_data,freq_vec,encoded_message);
 }
 
-pub fn arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>,aux_data : AuxiliaryData , path : &str){
+pub fn JPEG_arithmetic_encoding_to_file(arith_encoder : &ArithEncoder<JPEGSymbol>,aux_data : AuxiliaryData , path : &str){
 
     let buffer = encode_JPEG_buffer(&arith_encoder.freq_count, &arith_encoder.encoded_message,&aux_data);
     write_to_bin(&buffer, path)
 
 }
 
-pub fn arithmetic_encoding_from_file(path : &str) -> (AuxiliaryData,ArithEncoder<JPEGSymbol>){
+pub fn JPEG_arithmetic_encoding_from_file(path : &str) -> (AuxiliaryData,ArithEncoder<JPEGSymbol>){
     let mut buffer = load_from_bin(path);
     let (aux_data,freq_vec,encoded_message) = decode_JPEG_buffer(&mut buffer);
     return (aux_data,ArithEncoder::from_encoded_message(freq_vec, encoded_message, JPEGSymbol::EOF));
@@ -249,7 +262,7 @@ mod test{
     }
 
     #[test]
-    fn test_encode_decode_buffer(){
+    fn test_encode_decode_JPEG_buffer(){
         use JPEGSymbol::*;
         let freq_vec = vec![(Zeros(8),20),(Symbol(-400),30),(EOB,2),(EOF,1)];
         let encoded_message = vec![1,1,1,0,0,0,1,1,0,0,1,0,1,0,1,1];
@@ -260,11 +273,23 @@ mod test{
         };
         let mut buffer = encode_JPEG_buffer(&freq_vec, &encoded_message,&aux_data);
         let (aux_data_decoded,freq_vec_decoded,encoded_message_decoded) = decode_JPEG_buffer(&mut buffer);
+       
         assert_eq!(freq_vec,freq_vec_decoded);
         assert_eq!(encoded_message,encoded_message_decoded[0..encoded_message.len()]);
         assert_eq!(aux_data.original_size,aux_data_decoded.original_size);
         assert_eq!(aux_data.sample_type,aux_data_decoded.sample_type);
         assert_eq!(aux_data.Qf,aux_data_decoded.Qf);
+    }
+
+    fn test_encode_decode_AE_buffer(){
+        let freq_vec = vec![(0,4),(123,10),(7,12),(-12,5)];
+        let encoded_message = vec![1,1,1,1,0,0,1,0,1,0,0,1,0,1,1,0,0,1,0,1,0,1];
+
+        let mut buffer = encode_AE_buffer(&freq_vec, &encoded_message);
+        let (freq_vec_decoded,encoded_message_decoded) = decode_AE_buffer(buffer);
+
+        assert_eq!(freq_vec,freq_vec_decoded);
+        assert_eq!(encoded_message,encoded_message_decoded); 
     }
 
 }
